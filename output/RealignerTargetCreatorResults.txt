@@ -1,0 +1,22 @@
+#Results from:
+
+cat DeDupedbams_withRG.txt | parallel --jobs 23 ' java -Xmx4g -jar ../../../GenomeAnalysisTK.3.7/GenomeAnalysisTK.jar \
+ -T RealignerTargetCreator \
+ -R ../../ReferenceGenome/Zos_marina.v.2.1_genomic.fasta \
+ -I {} \
+ -o {}.intervals '
+
+
+INFO  17:13:28,739 ProgressMeter -            done   2.03913826E8    54.6 m      16.0 s      100.0%    54.6 m       0.0 s 
+INFO  17:13:28,739 ProgressMeter - Total runtime 3276.08 secs, 54.60 min, 0.91 hours 
+INFO  17:13:28,739 MicroScheduler - 58409868 reads were filtered out during the traversal out of approximately 364464968 total reads (16.03%) 
+INFO  17:13:28,740 MicroScheduler -   -> 0 reads (0.00% of total) failing BadCigarFilter 
+INFO  17:13:28,740 MicroScheduler -   -> 7408043 reads (2.03% of total) failing BadMateFilter 
+INFO  17:13:28,740 MicroScheduler -   -> 0 reads (0.00% of total) failing DuplicateReadFilter 
+INFO  17:13:28,740 MicroScheduler -   -> 0 reads (0.00% of total) failing FailsVendorQualityCheckFilter 
+INFO  17:13:28,740 MicroScheduler -   -> 0 reads (0.00% of total) failing MalformedReadFilter 
+INFO  17:13:28,740 MicroScheduler -   -> 0 reads (0.00% of total) failing MappingQualityUnavailableFilter 
+INFO  17:13:28,740 MicroScheduler -   -> 51001825 reads (13.99% of total) failing MappingQualityZeroFilter 
+INFO  17:13:28,740 MicroScheduler -   -> 0 reads (0.00% of total) failing NotPrimaryAlignmentFilter 
+INFO  17:13:28,741 MicroScheduler -   -> 0 reads (0.00% of total) failing Platform454Filter 
+INFO  17:13:28,741 MicroScheduler -   -> 0 reads (0.00% of total) failing UnmappedReadFilter 

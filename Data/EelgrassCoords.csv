@@ -1,0 +1,24 @@
+Site,Location,Code,Region,Lat,Long,OffsetLat,OffsetLong,Number,Collaborator,Samplers,Collection date,Plate #,subsampler,Comments (subsampling)
+1,"Summerside, PEI",SUM,Gulf-PEI,46.36505,-63.79396667,46.36505,-63.79396667,50,,"Andre Nadeau, Tim Bernard, Tessa Craig",1/9/2021,3,BV ,
+2,"Taylor Head, NS",TH,Maritimes,44.82054295,-62.57190789,44.82054295,-62.57190789,50,,,,1,NJ,
+3,"Masons Island, NS",MASI,Maritimes,44.38989996,-64.27879991,44.38989996,-64.27879991,50,,,,2,NJ,
+4,"Sacrifice Island, NS",SAC,Maritimes,44.396652,-64.23597702,44.396652,-64.23597702,50,,,,2,NJ,
+5,"Port Joli, NS",PRJ,Maritimes,43.87538304,-64.90091692,43.65,-64.90091692,50,,,,4,NJ,
+6,"Port L'Hebert, NS",HEB,Maritimes,43.86806698,-64.96333293,43.65,-64.96333293,50,,,,6,BV,"#44 does not exist, skipped"
+7,"Lower Three Fathom, NS",L3F,Maritimes,44.63533793,-63.29393794,44.63533793,-63.29393794,50,,,,3,BV,
+8,"Sambro (Shallow), NS",SAM,Maritimes,44.4554,-63.5879,44.4554,-63.5879,50,,,,5,BV,
+9,"East Bay, NS",Ebay,Maritimes,46.01493,-60.38755,46.01493,-60.38755,50,,"BV, SR",7/10/2021,9,BV ,REMOVE for genomic offset?
+10,"Nahant, Massachussetts",MASS,USA,42.42,-70.92,42.42,-70.92,50,Phil Colarusso,Phil Colarusso,25/06/2021,5,BV,
+11,"Portland (East End Beach), Maine",PORT,USA,43.66833,-70.23891,43.66833,-70.11,50,Phil Colarusso,Phil Colarusso,13/09/2021,6,BV,samples labelled East Point Beach
+12,"Pokesudie (St Simon), New Brunswick",POK,Gulf-NB,47.78465,-64.74825,47.78465,-64.74825,50,,"Erica Watson, Chantal Coomber, Sandrine Tuesignant",4/8/2021,4,NJ,
+13,Poulamon (Isle Madame),POUL,Maritimes,45.58269,-61.00286,45.58269,-61.00286,50,,"BV, KR, CD",5/10/2021,9,BV,skipped #42
+14,North River,NRIV,Maritimes,46.2969,-60.6145,46.31,-60.2,50,,"BV, VB",6/10/2021,8,BV ,
+15,"Buckley Cove, Bonavista Bay",BUCK,Newfoundland,48.59036667,-53.91451667,48.75,-53.8,55,Bob Gregory,"Bob Gregory, Coady Fitzpatrick",6/10/2021,11,BV,"45 sampled out of 55 (10 were black leaves only: #15, #18, #27, #33, #37, #40, #44, #47, #48 and #55 skipped)"
+16,"Petite Baie, Magdalen Islands",PETITE,Quebec,47.40533,-61.8226,47.40533,-61.8226,49,Nathalie Simard,"Isabelle Berube, Nathalie Simard",6/10/2021,8,BV,
+17,Rimouski,RIM,Quebec,48.46687871,-68.51951606,48.46687871,-68.51951606,41,France Dufresne,,,7,NJ,
+18,Sept Iles,SEPT,Quebec,50.24063719,-66.51546842,50.1,-66.51546842,39,France Dufresne,,,7,NJ,
+19,James Bay CH33,CH33,Arctic,53.6968,-79.1279,53.6968,-79.1279,30,France Dufresne,,,10,NJ,combine?
+20,James Bay CH38,CH38,Artcic,53.280838�,-78.974159,53.280838,-78.974159,30,France Dufresne,,,10,NJ,combine?
+21,Melmerby,MELM,Gulf-NS,45.65388991,-62.50152598,45.65388991,-62.50152598,54,,"BV, FJ",,11,BV ,"very stressed site, skipped #6"
+22,"Great Bay, New Hampshire",GreatBay,USA,43.073,-70.864,43.073,-70.5,50,Cynthia Hays,Cynthia Hays,15/07/2021,10&7,BV ,"skipped # 24, large leaves"
+23,"Tsawwassen Beach, Pacific",TSW,Pacific,49.00515575,-123.0934823,49.00515575,-123.0934823,30,France Dufresne,,31/3/2021,6_2,BV,

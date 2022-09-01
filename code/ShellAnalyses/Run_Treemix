@@ -1,0 +1,22 @@
+#Create Treemix file from Genobaypass file and run treemix 20 times
+
+#add a comma between alleles for every population, and a space between each population
+sed -r 's/([^ ]+ +[^ ]+) +/\1,/g' ZosteraAllPools.genobaypass > Test.genobaypass
+
+#So I managed to replace all whitespace with a comma, and then used this sed line to replace every second comma with a space to make the Treemix input
+sed -E 's/(,[^,]*),/\1 /g' Test.genobaypass > Test2.genobaypass
+
+####Explanation
+#(,[^,]*), matches and captures into Group 1 a comma and then any zero or more chars other than a comma, and then matches a comma
+#\1  replaces the match with Group 1 value and adds a space right after.
+#The -E option enables POSIX ERE regex syntax.
+
+#Run treemix for 1 thru 23 migration events (1 per pop) with blocks of 1000 SNPs
+mkdir TreemixOutput
+#do a loop, use 1000 snp blocks, and set TSW as the root for the tree
+for i in {0..23};
+ do  treemix -i Zostera.treemixInput.frq.gz -se -k 1000 -root TSW -m $i -o TreemixOutput/ZosteraTreemixOutput$i ;
+ done
+ 
+ #Try three-pop software to test for 'treeness' in three population trees
+ threepop -i Zostera.treemixInput.frq.gz -k 1000

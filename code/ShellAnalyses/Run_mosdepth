@@ -1,0 +1,13 @@
+#Run mosdepth for all my sorted bams to assess coverage
+#assuming I'm in my 'DeDuped' folder:
+
+
+for i in *.sorted.DeDupRG.bam;
+do ../../../../home/mcrg/mosdepth --by 10000 --no-per-base $i.output $i
+done 
+
+#started 12:40pm March 30 2022
+
+#plot up the results with the python script, may need to install a few python modules
+
+python ../../../../home/mcrg/plot-dist.py \*global.dist.txt

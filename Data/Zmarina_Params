@@ -1,0 +1,25 @@
+#set params for shell scripting including working directory genome and input files
+
+#main directory
+
+projdir=/hdd3/EelgrassPoolSeq
+
+#genome file location
+genome=/hdd3/EelgrassPoolSeq/ReferenceGenome/Zos_marina.v.2.1_genomic.fna
+
+#sample info
+setfile=$projdir/FastQInputs.txt
+
+
+#Species name for some reason
+species=$(echo Zostera_marina)
+
+#Software
+	#trimming
+	fastp=/hdd3/fastp
+	
+	#aligning - use bwa-mem2
+	bwamem2=/hdd3/bwa-mem2-2.0pre2_x64-linux/bwa-mem2
+	
+	#gat k-ing
+	gatk=/home/mcrg/gatk-4.2.5.0/gatk
