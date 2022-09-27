@@ -7,6 +7,7 @@ library(raster)
 library(sf)
 library(sp)
 library(R.matlab)
+setwd("R:/Science/CESD/HES_MPAGroup/Data")
 
 #set projection to be used with the BNAM files
 latlong <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
