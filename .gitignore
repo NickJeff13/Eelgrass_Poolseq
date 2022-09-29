@@ -39,4 +39,4 @@ vignettes/*.pdf
 .Renviron
 
 # rasters generated from the BNAM data since they are too large
-output/*.tif
+*.tif
