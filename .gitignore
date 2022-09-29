@@ -37,3 +37,6 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# rasters generated from the BNAM data since they are too large
+output/*.tif
