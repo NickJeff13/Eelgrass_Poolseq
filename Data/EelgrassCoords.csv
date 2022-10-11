@@ -18,7 +18,7 @@ Site,Location,Code,Region,Lat,Long,OffsetLat,OffsetLong,Number,Collaborator,Samp
 17,Rimouski,RIM,Quebec,48.46687871,-68.51951606,48.46687871,-68.51951606,41,France Dufresne,,,7,NJ,
 18,Sept Iles,SEPT,Quebec,50.24063719,-66.51546842,50.1,-66.51546842,39,France Dufresne,,,7,NJ,
 19,James Bay CH33,CH33,Arctic,53.6968,-79.1279,53.6968,-79.1279,30,France Dufresne,,,10,NJ,combine?
-20,James Bay CH38,CH38,Artcic,53.280838�,-78.974159,53.280838,-78.974159,30,France Dufresne,,,10,NJ,combine?
+20,James Bay CH38,CH38,Artcic,53.280838,-78.974159,53.280838,-78.974159,30,France Dufresne,,,10,NJ,combine?
 21,Melmerby,MELM,Gulf-NS,45.65388991,-62.50152598,45.65388991,-62.50152598,54,,"BV, FJ",,11,BV ,"very stressed site, skipped #6"
 22,"Great Bay, New Hampshire",GreatBay,USA,43.073,-70.864,43.073,-70.5,50,Cynthia Hays,Cynthia Hays,15/07/2021,10&7,BV ,"skipped # 24, large leaves"
 23,"Tsawwassen Beach, Pacific",TSW,Pacific,49.00515575,-123.0934823,49.00515575,-123.0934823,30,France Dufresne,,31/3/2021,6_2,BV,
