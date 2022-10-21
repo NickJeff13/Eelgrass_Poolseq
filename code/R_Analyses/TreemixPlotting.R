@@ -3,11 +3,11 @@ source("/home/mcrg/treemix-1.13/src/plotting_funcs.R")
 
 setwd("/hdd3/EelgrassPoolSeq/trimmed/DeDuped/IndelRealigned/TreemixOutput/")
 
-plot_tree2("ZosteraTreemixOuput7")
+plot_tree2("ZosteraTreemixOuput6")
 
 plot_resid("ZosteraTreemixOuput6",pop_order = "Treemixpoporder.txt")
 
-pop_order = c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","MASS",
+pop_order = c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH",
               "SEPT","GRB","HEB","PORT", "NRIV","EBAY","POUL","BUCK","MELM","TAYH","PETI","RIM","JB33","JB38","TSW")
 write.table(pop_order,"Treemixpoporder.txt")
 

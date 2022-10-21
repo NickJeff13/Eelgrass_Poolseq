@@ -8,9 +8,9 @@ library(vegan)
 library(ggbiplot)
 
 #Set our directory to where the trimmed and realigned bam, pileup, and sync files are
-setwd("/hdd3/EelgrassPoolSeq/trimmed/DeDuped/IndelRealigned/")
+setwd("/hdd3/EelgrassPoolSeq/")
 #Load the Rdata
-load("/hdd3/EelgrassPoolSeq/trimmed/DeDuped/IndelRealigned/ZosteraPoolfstat.RData")
+load("/hdd3/EelgrassPoolSeq/EnvData/ZosteraPoolfstat.RData")
 
 
 #####################################################################################
@@ -97,7 +97,7 @@ pairwisepools.fst <- zos.pair.fst@PairwiseFSTmatrix
 write.csv(pairwisepools.fst,"Zostera_PairwisePoolsFST.csv")
 
 #Do a quick plot to see how it looks
-poolfstat::heatmap(pairwisepools.fst)
+#poolfstat::heatmap(pairwisepools.fst) this one looks weird
 gplots::heatmap.2(pairwisepools.fst,dendrogram = "col",na.rm = T,trace = "none",density.info = "none",key.title = NA,key.xlab = "Pairwise Fst",symkey = F)
 
 #Can subset pooldata if need be
@@ -115,6 +115,7 @@ plot(zos.snp.fsts$sliding.windows.fst$CumulatedPosition/1e4,zos.snp.fsts$sliding
      #col=zos.snp.fsts$sliding.windows.fst$Chr,pch=16)
 
 #make this data usable for a manhattan plot
+globalfsts<-zos.snp.fsts$sliding.windows.fst
 colnames(globalfsts) <-c("CHR", "BP", "SNP","FST") #rename column headers
 globalfsts$CHR <-gsub("Chr","",globalfsts$CHR)
 globalfsts$CHR <-gsub("scaffold_","",globalfsts$CHR)
@@ -123,7 +124,10 @@ globalfsts$CHR <-as.numeric(globalfsts$CHR)
 qqman::manhattan(globalfsts, chr="CHR", bp="BP", snp="SNP", p="FST", suggestiveline = F, 
           genomewideline = F, logp = F, ylim =c(0,1),
           annotatePval = 0.5, annotateTop = F) #p here refers to pvalue or in this case the Fst value, substitute with which column comparison you are interested in graphing
-
+#same plot without annotations
+qqman::manhattan(globalfsts, chr="CHR", bp="BP", snp="SNP", p="FST", suggestiveline = F, 
+                 genomewideline = F, logp = F, ylim =c(0,1),
+                 annotateTop = T) 
 
 #now do some jackknifing to calculate standard error
 zos.snp.fsts.jacked<-computeFST(zospools,method = "Anova",nsnp.per.bjack.block = 1000)
@@ -134,7 +138,7 @@ zos.fstats<-compute.fstats(x = zospools,nsnp.per.bjack.block = 1000,computeDstat
 
 #try to build an NJ tree
 scaf.pops <-find.tree.popset(zos.fstats,verbose = T)
-scaf.tree <- rooted.njtree.builder(fstats = zos.fstats,pop.sel = scaf.pops$pop.sets[1,],plot.nj = T,verbose = T)
+scaf.tree <- rooted.njtree.builder(fstats = zos.fstats,pop.sel = scaf.pops$pop.sets[3,], plot.nj = T,verbose = T)
 #This tree apparently has negative branch lengths, probably because Pool 23 is so different. So the relationships make sense, but it's not the best tree
 
 ##################################################################################
@@ -219,7 +223,13 @@ pops=c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","MASS","RIM",
        "SEPT","GRB","HEB","PORT", "PETI","NRIV","EBAY","POUL","JB33","JB38","BUCK","MELM","TAYH","TSW")
 # Create a correlation matrix of the omega values, which can be used to assess genomic differentiation between pools
 cor.mat=cov2cor(SG.omega)
-corrplot(cor.mat,method="color",mar=c(2,1,2,2)+0.1,
+corrplot(cor.mat,
+         method="color",
+         mar=c(2,1,2,2)+0.1,
+         #addCoef.col = 'grey',
+         tl.col="black",
+         type="lower",
+         col.lim=c(0,1),
          main=expression("Correlation map based on"~hat(Omega)))
 
 # We can also assess population differentiation with hierarchical clustering:
@@ -303,6 +313,7 @@ fst = read.table("AllPools_w1000.fst", header = F)
 colnames(fst) <-c("CHR", "BP", "SNPs","FRACTION","COV",paste0("V",6:258)) #rename column headers
 fst$ID <- paste(fst$CHR,fst$BP,sep=".")
 
+#not sure what these two lines were about...
 fst2<-fst
 fst<-fst2
 #tidying file
@@ -310,8 +321,8 @@ fst$CHR<-gsub(pattern = "Chr", replacement = "",x = fst$CHR)
 fst$CHR<-gsub(pattern = "scaffold_",replacement = "",x = fst$CHR)
 fst$CHR <- as.numeric(fst$CHR)
 
-manhattan(fst, chr="CHR", bp="BP", snp="ID", p="V6", suggestiveline = F, 
-          genomewideline = F, logp = F, ylim =c(0,1)) #p here refers to pvalue or in this case the Fst value, substitute with which column comparison you are interested in graphi
+qqman::manhattan(fst, chr="CHR", bp="BP", snp="ID", p="V6", suggestiveline = F, 
+          genomewideline = F, logp = F, ylim =c(0,1)) #p here refers to pvalue or in this case the Fst value, substitute with which column comparison you are interested in graphing
 
 
 
@@ -754,6 +765,21 @@ D_all$D_23 <- as.numeric(D_all$D_23)
 
 #get the mean D value per pool
 my_list<-list()
+#Plot up Taj D across the genome for each pool
+library(ggplot2)
+library(data.table)
+D_Long <- melt(setDT(D_all), id.vars="ID", variable.name="pool")
+
+ggplot()+geom_smooth(data=D_Long, aes(x=ID,y=value), method="loess", span=0.025)+
+  facet_wrap(~pool)+
+  theme_bw()
+
+ggplot()+stat_smooth(data=D_all, aes(x=ID,y=D_1), method="loess")+
+  #facet_wrap(~pool)+
+  theme_bw()
+
+
+#Now run a PCA based on D values
 #remove first column
 D_allNEW<-D_all[,-1]
 for(i in 1:ncol(D_allNEW)){

@@ -54,8 +54,8 @@ NS_envonly<-NS_envdat[,5:ncol(NS_envdat)]
 plot(NS_envonly)
 psych::pairs.panels(NS_envonly, scale=TRUE)
 #drop GDD11, percent mud, mediansumDTR95per, mean_Temp
-NS_envdat1<-NS_envdat %>% dplyr::select(-c(Code, Location, GDD11, Mean_temp,percentsand,mediansumDTR95per,meansumDTR95per,meansumDTR90per,mediansumDTR90per,prop5.23))
-NS_envonly1<-NS_envonly %>% dplyr::select(-c(GDD11, Mean_temp,percentmud,percentsand,mediansumDTR95per, meansumDTR95per,meansumDTR90per,mediansumDTR90per,prop5.23))
+NS_envdat1<-NS_envdat %>% dplyr::select(c(Lat, Long, percentsand, REI, Max_temp, meansumDTR95per, GDD5, prop5.23))
+NS_envonly1<-NS_envonly %>% dplyr::select(c(percentsand, REI, Max_temp, meansumDTR95per, prop5.23, GDD5))
 rownames(NS_envonly1)<-c("MASI","SAC","L3F","PRJ","SAM","HEB","TAYH")
 rownames(NS_envdat1)<-c("MASI","SAC","L3F","PRJ","SAM","HEB","TAYH")
 #get ready to run the RDA - transpose the al.freq matrix
@@ -63,14 +63,14 @@ identical(rownames(alleles),rownames(NS_envonly1))
 
 #try forward selection to select most explanatory predictors
 library(packfor)
-fs<-forward.sel(alleles,envdat[,5:length(colnames(envdat))],adjR2thresh = global_r2, alpha=0.1, nperm = 999)
+fs<-forward.sel(alleles,NS_envdat[,5:length(colnames(NS_envdat))],adjR2thresh = global_r2, alpha=0.1, nperm = 999)
 #variables order        R2     R2Cum  AdjR2Cum        F  pval
 #1    Max_temp     5 0.3100359 0.3100359 0.1720431 2.246754 0.011
 #2 percentsand    13 0.2151833 0.5252192 0.2878288 1.812907 0.044
 
 #Set a null RDA model for ordiR2step
-RDA0 <- rda(alleles ~ 1,  envdat1) 
-RDAFull <- rda(alleles~ Min_temp + Max_temp + percentmud + REI + GDD5, envdat1)
+RDA0 <- rda(alleles ~ 1,  NS_envonly1) 
+RDAFull <- rda(alleles~ GDD5 + Max_temp + prop5.23 + meansumDTR95per + percentsand, NS_envonly1)
 mod<-ordiR2step(RDA0, RDAFull, Pin = 0.01, R2permutations = 1000, R2scope = T)
 mod$anova
 
@@ -78,12 +78,12 @@ mod$anova
 #dim(rda.dat)
 #we have 7 rows for the populations, x 13 columns of coordinates/env data, and 413551 columns of alleles
 #1. Full RDA
-NS.rda.full<-vegan::rda(alleles ~ GDD5+ Min_temp + Max_temp + percentmud + REI , data=NS_envdat1, scale=T)
+NS.rda.full<-vegan::rda(alleles ~ Max_temp + REI + GDD5 + prop5.23 + percentsand, data=NS_envonly1, scale=T)
 NS.rda.full
 summary(NS.rda.full)
 summary(vegan::eigenvals(NS.rda.full, model = "constrained"))
 #2. Partial RDA controlling for lat and long
-NS.rda.partial<-vegan::rda(alleles ~ Min_temp + Max_temp +  REI + Condition(Lat + Long), data=NS_envdat1, scale=T)
+NS.rda.partial<-vegan::rda(alleles ~ Max_temp + GDD5 + prop5.23 + percentsand + REI + Condition(Lat + Long), data=NS_envdat1, scale=T)
 NS.rda.partial
 summary(NS.rda.partial)
 #3. RDA using only lat and long
@@ -93,14 +93,14 @@ summary(NS.rda.dists)
 
 #Look at aliasing and R squared adjusted
 alias(NS.rda.full,names=T) #no aliased terms
-RsquareAdj(NS.rda.full) #0.24
+RsquareAdj(NS.rda.full) #0.30
 global_r2<-RsquareAdj(NS.rda.full)$adj.r.squared
 RsquareAdj(NS.rda.partial) #0.0097
 RsquareAdj(NS.rda.dists) #0.17
 screeplot(NS.rda.full) #RDA1 and 2 are by far most important
 
 #anova by terms for each rda
-anova.cca(NS.rda.full, permutations = 999, parallel=20) #global significance = 0.024
+anova.cca(NS.rda.full, permutations = 9999, parallel=20) #global significance = 0.007
 anova.cca(NS.rda.full,permutations = 999, parallel = 12, by="terms") #suggests max temp and percentsand are significant at p<0.05
 anova.cca(NS.rda.full, permutations = 1000, by="margin") #Max temp significant at 0.031 
 anova.cca(NS.rda.partial, permutations = 999, parallel=20) #global significance = 0.438
@@ -113,6 +113,7 @@ anova.cca(NS.rda.dists, permutations = 999, parallel=20) #global significance = 
 sites<-NS_envdat$Code
 bg <- c("#ff7f00","#1f78b4","#ffff33","#a6cee3","#33a02c","#e31a1c","mediumslateblue") # 7 nice colors for our ecotypes
 
+plot(NS.rda.full, choices=c(2,3), scaling=3)
 plot(NS.rda.full,type="n",scaling=3)
 points(NS.rda.full,col="gray32",pch=20,cex=0.9,scaling=3,display="species")
 points(NS.rda.full,display="sites",pch=21, cex=1.3, col="gray32",scaling=3,bg=bg)
@@ -196,11 +197,11 @@ identical(rownames(alleles.forGV),rownames(envonly_present1))
 
 #we have 21 rows for the populations, x 4 columns of coordinates/env data, and 468059 columns of alleles. Use scaled environmental data.
 #1. Climate only RDA
-zos.rda.full<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SBTM_AnnMean + SSS_AnnMean + SST_SpringMean + SST_SummerMax, data=envonly_present1, scale=T)
+zos.rda.full<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SBTM_AnnMean + SST_SpringMean + SST_SummerMax, data=envonly_present1, scale=T)
 zos.rda.full
 summary(zos.rda.full)
 #2. Partial RDA controlling for lat and long
-zos.rda.partial<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SBTM_AnnMean + SSS_AnnMean + SST_SpringMean + SST_SummerMax + Condition(Long + Lat),data=envonly_present1, scale=T)
+zos.rda.partial<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SBTM_AnnMean + SST_SpringMean + SST_SummerMax + Condition(Long + Lat),data=envonly_present1, scale=T)
 zos.rda.partial
 summary(zos.rda.partial)
 #3. RDA using only lat and long
@@ -210,7 +211,7 @@ summary(zos.rda.dists)
 
 #Look at aliasing and R squared adjusted
 alias(zos.rda.full,names=T) #no aliasing required
-RsquareAdj(zos.rda.full) #0.25
+RsquareAdj(zos.rda.full) #0.19
 global_r2<-RsquareAdj(zos.rda.full)$adj.r.squared
 RsquareAdj(zos.rda.partial) #0.121
 RsquareAdj(zos.rda.dists) #0.163
@@ -245,6 +246,60 @@ points(zos.rda.full,display="sites",pch=21, cex=1.3, col="gray32",scaling=3, bg=
 text(zos.rda.full,scaling=3, display="bp", col="#0868ac",cex=1)
 legend("bottomright",legend=sites,bty="n",col="gray32", pch=21, cex=1, pt.bg=bg2)
 
+#Get CCA scores
+df_species  <- data.frame(summary(zos.rda.full)$species[,1:2])# get the species CC1 and CC2 scores
+df_environ  <- scores(zos.rda.full, display = 'bp')
+df_sites <- data.frame(scores(zos.rda.full, display="wa"))
+df_sites$Sites <- as.factor(rownames(df_sites))
+cca1_varex<-round(summary(zos.rda.full)$cont$importance[2,1]*100,2) #Get percentage of variance explained by first axis
+cca2_varex<-round(summary(zos.rda.full)$cont$importance[2,2]*100,2) #Get percentage of variance explained by second axis
+
+#Set a scaling variable to multiply the CCA values, in order to get a very similar plot to the the one generated by plot(cca_model). You can adjust it according to your data
+scaling_factor <- 10
+
+rda.biplot<- ggplot(df_species, 
+       aes(x=RDA1, y=RDA2)) + 
+  #Draw lines on x = 0 and y = 0
+  geom_hline(yintercept=0, 
+             linetype="dashed") +
+  geom_vline(xintercept=0, 
+             linetype="dashed") +
+  coord_fixed()+
+  #Add species text
+  geom_point(data=df_species, 
+            aes(x=RDA1,#Score in RDA1 to add species text
+                y=RDA2))+
+  #Add environmental vars arrows
+  geom_segment(data=df_environ, 
+               aes(x=0, #Starting coordinate in CCA1 = 0 
+                   xend=RDA1*scaling_factor,#Ending coordinate in CCA1  
+                   y=0, #Start in CCA2 = 0
+                   yend=RDA2*scaling_factor), #Ending coordinate in CCA2 
+               color="dodgerblue", size=1.1,#set color
+               arrow=arrow(length=unit(0.01,"npc"))#Set the size of the lines that form the tip of the arrow
+  )+
+  #Add environmental vars text
+  geom_text(data=df_environ, 
+            aes(x=RDA1*scaling_factor, 
+                y=RDA2*scaling_factor,
+                label=rownames(df_environ),
+                fontface="bold",
+                hjust=0.5*(1-sign(RDA1*scaling_factor)),#Add the text of each environmental var at the end of the arrow
+                vjust=0.5*(1-sign(RDA2*scaling_factor))),#Add the text of each environmental var at the end of the arrow 
+            color="dodgerblue")+
+  #Set x and y axis titles
+  labs(x=paste0("RDA1 (",cca1_varex," %)"),
+       y=paste0("RDA2 (",cca2_varex," %)"))
+
+rda.biplot + geom_point(data=df_sites, aes(x=RDA1, y=RDA2, shape=21, fill=Sites, size=2))+
+  scale_shape_identity()+
+  scale_fill_manual(values=c("yellow","red","cyan","green","green","orange","purple","red","navyblue","navyblue","navyblue",
+                              "navyblue","red","navyblue","cyan","pink","purple","orange","yellow","navyblue","orange"))+
+  geom_text_repel(data=df_sites, aes(x=RDA1, y=RDA2, label=Sites, fontface="bold",family="Arial"), max.overlaps = 20) +  #Set bw theme
+  theme_bw()+
+  theme(legend.position="none")
+
+  
 #Constrained by geography RDA plot
 plot(zos.rda.partial,type="n",scaling=3)
 points(zos.rda.partial,col="gray32",pch=20,cex=0.9,scaling=3,display="species")
@@ -301,7 +356,7 @@ ggplot() +
   geom_segment(data = TAB_var, aes(xend=RDA1, yend=RDA2, x=0, y=0), colour="black", size=0.15, linetype=1, arrow=arrow(length = unit(0.02, "npc"))) +
   geom_text(data = TAB_var, aes(x=1.1*RDA1, y=1.1*RDA2, label = row.names(TAB_var)), size = 2.5, family = "Arial") +
   xlab("RDA 1") + ylab("RDA 2") +
-  facet_wrap(~"RDA space") +
+ # facet_wrap(~"RDA space") +
   guides(color=guide_legend(title="Locus type")) +
   theme_bw(base_size = 11, base_family = "Arial") +
   theme(panel.background = element_blank(), legend.background = element_blank(), panel.grid = element_blank(),
@@ -318,14 +373,30 @@ ggplot() +
   theme_bw()
 
 ##manhattan plot of RDA outlier (q-value <0.1)
-ggplot() +
-  geom_point(aes(x=c(1:length(res_rdadapt[,1])), y=-log10(res_rdadapt[,1])),
-             col = "gray83") +
-  geom_point(aes(x=c(1:length(res_rdadapt[,1]))[which(res_rdadapt[,2] < 0.1)],
-                 y=-log10(res_rdadapt[which(res_rdadapt[,2] < 0.1),1])),
-             col = "orange") +
-  xlab("SNPs") + ylab("-log10(p.values)") +
-  theme_bw()
+## Manhattan plot
+Outlie <- rep("Neutral", length(colnames(alleles.forGV)))
+Outlie[colnames(alleles.forGV)%in%outliers$Loci] <- "All outliers"
+#Outlie[colnames(alleles.forGV)%in%outliers_rdadapt_env] <- "Top outliers"
+Outlie <- factor(Outlie, levels = c("Neutral", "All outliers"))
+TAB_manhatan <- data.frame(str_split_fixed(string =colnames(alleles.forGV),pattern = "_", n=2), 
+                           pvalues = rdadapt_env$p.values, 
+                           Outliers = Outlie)
+TAB_manhatan$snp<-1:length(rownames(TAB_manhatan))
+ggman(gwas = TAB_manhatan, snp = "snp", bp = )
+
+TAB_manhatan <- TAB_manhatan[order(TAB_manhatan$Outlie),]
+ggplot(data = TAB_manhatan) +
+  geom_point(aes(x=pos, y=-log10(pvalues), col = Outliers), size=1.4) +
+  scale_color_manual(values = c("gray90", "#F9A242FF")) +
+  xlab("Loci") + ylab("-log10(p.values)") +
+  geom_hline(yintercept=-log10(thres_env), linetype="dashed", color = gray(.80), size=0.6) +
+  #facet_wrap(~"Manhattan plot", nrow = 3) +
+  guides(color=guide_legend(title="Locus type")) +
+  theme_bw(base_size = 11, base_family = "Arial") +
+  theme(legend.position="right", legend.background = element_blank(), panel.grid = element_blank(), 
+        legend.box.background = element_blank(), plot.background = element_blank(), panel.background = element_blank(), 
+        legend.text=element_text(size=rel(.8)), strip.text = element_text(size=11))
+
 
 #Now look at adaptive index across the landscape sensu Forester and Capblancq
 source("/hdd3/RDA-landscape-genomics-main/src/adaptive_index.R")
@@ -339,13 +410,20 @@ eelshape <- erase(eelshapeFull, sable)
 
 
 #Run just an RDA with the outliers
-RDA_outliers<-vegan::rda(alleles.forGV[,outliers$Loci] ~ TBTM_WinterMin + SBTM_AnnMean + SSS_AnnMean + SST_SpringMean + SST_SummerMax, data=envonly_present1, scale=T)
+RDA_outliers<-vegan::rda(alleles.forGV[,outliers$Loci] ~ TBTM_WinterMin + SBTM_AnnMean  + SST_SpringMean + SST_SummerMax, data=envonly_present1, scale=T)
 anova.cca(RDA_outliers) #p<-0.001
 
 ordiplot(RDA_outliers, scaling=2, type="text")
+plot(RDA_outliers, scaling=3, choices=c(1,2))
+plot(RDA_outliers, scaling=3, choices=c(2,3))
+
 ordiplot(RDA_outliers, scaling=1, type="text")
 
-
+plot(RDA_outliers,type="n",scaling=3)
+points(RDA_outliers,col="gray32",pch=20,cex=0.9,scaling=3,display="species")
+points(RDA_outliers,display="sites",pch=21, cex=1.3, col="gray32",scaling=3, bg=bg2)
+text(RDA_outliers,scaling=3, display="bp", col="#0868ac",cex=1)
+legend("bottomright",legend=sites,bty="n",col="gray32", pch=21, cex=1, pt.bg=bg2)
 #Create a biplot just on these outliers
 
 TAB_loci <- as.data.frame(scores(RDA_outliers, choices=c(1:2), display="species", scaling="none"))
@@ -406,15 +484,16 @@ adapt_plot<-ggplot(data = TAB_RDA) +
             scale_fill_viridis_d(alpha = 0.8, direction = -1, option = "D", 
                                  labels = c("Negative scores","","","","Intermediate scores","","","","Positive scores")) +
             geom_sf(data = admin, fill=NA, size=0.1) +
-            coord_sf(xlim = c(-82, -52), ylim = c(42, 62), expand = FALSE) +
+            coord_sf(xlim = c(-82, -52), ylim = c(42, 64), expand = FALSE) +
             xlab("Longitude") + ylab("Latitude") +
             guides(fill=guide_legend(title="Adaptive index")) +
             facet_grid(~ variable) +
             theme_bw(base_size = 12, base_family = "Arial") +
-            theme(panel.grid = element_blank(), plot.background = element_blank(), panel.background = element_blank(), strip.text = element_text(size=12))
+            theme(panel.grid = element_blank(), plot.background = element_blank(), panel.background = element_blank(), strip.text = element_text(size=12),
+                  legend.position = "right")
 
-adapt_plot+geom_point(data=coords,aes(x=Long,y=Lat),size=2.25)
-adapt_plot + geom_text_repel(data=envdat, aes(x=Long, y=Lat, label=Site, family="Calibri"), max.overlaps = 20, nudge_x=1.5, nudge_y = -0.5)
+adapt_plot+geom_point(data=coords,aes(x=Long,y=Lat),size=2)
+#adapt_plot + geom_text_repel(data=envdat, aes(x=Long, y=Lat, label=Site, family="Calibri"), max.overlaps = 20, nudge_x=1.5, nudge_y = -0.5)
 
 ggsave(filename = "Eelgrass_AdaptiveIndex.png", plot=last_plot(), device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/", width = 12, height = 10, units = "in")
 
@@ -452,17 +531,19 @@ offsetplot<- ggplot(data = RDA_proj_offset) +
   geom_sf(data = admin, fill=gray(.9), size=0) +
   geom_raster(aes(x = x, y = y, fill = cut(Global_offset, breaks=seq(0, 2, by = 0.4), include.lowest = T)), alpha = 1) + 
   scale_fill_manual(values = colors, labels = c("0-0.4","0.4-0.8","0.8-1.2","1.2-1.6","1.6-2.0"), 
-                    guide = guide_legend(title="Genomic offset", title.position = "top", title.hjust = 0.5, ncol = 1, label.position="right"), na.translate = F) +
+                    guide = guide_legend(title="Genomic offset", title.position = "top", title.hjust = 0.5, ncol = 5,label.position = "bottom"), na.translate = F) +
   geom_sf(data = admin, fill=NA, size=0.1) +
-  coord_sf(xlim = c(-82, -52), ylim = c(42,65), expand = FALSE)  +
+  coord_sf(xlim = c(-82, -52), ylim = c(42,64), expand = FALSE)  +
   xlab("Longitude") + ylab("Latitude") +
   facet_grid(~ RCP) +
   theme_bw(base_size = 12, base_family = "Arial") +
-  theme(panel.grid = element_blank(), plot.background = element_blank(), panel.background = element_blank(), strip.text = element_text(size=12))
+  theme(panel.grid = element_blank(), plot.background = element_blank(), panel.background = element_blank(), 
+        strip.text = element_text(size=12),legend.position = "bottom", legend.direction = "horizontal")
 
 offsetplot
-offsetplot+geom_text_repel(data=envdat, aes(x=Long, y=Lat, label=Site, family="Arial",fontface="bold"), max.overlaps = 20, nudge_x=1.5, nudge_y = -0.5)
-ggsave(filename = "GenomicOffset_Final.png", plot=offsetplot, device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/", width = 12, height = 10, units = "in")
+#offsetplot+geom_text_repel(data=envdat, aes(x=Long, y=Lat, label=Site, family="Arial",fontface="bold"), max.overlaps = 20, nudge_x=1.5, nudge_y = -0.5)
+ggsave(filename = "GenomicOffset_Final.png", plot=offsetplot, device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/", 
+       width = 12, height = 10, units = "in")
 
 #offsetplot + geom_point(data=genoffset_finalFINALScores, aes(x=Long, y=Lat, colour=GenOffset85))
 #let's extract scores to compare to our gradient forest below using bumped coords
