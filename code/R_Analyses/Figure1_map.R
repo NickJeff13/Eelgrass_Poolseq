@@ -21,11 +21,12 @@ colour_df <- data.frame(code=c("NAH","GRB","PORT","HEB","PRJ","SAC","MASI","SAM"
                         col=viridis(n=23))
 
 colour_df <- data.frame(code=c("NAH","GRB","PORT","HEB","PRJ","SAC","MASI","SAM","L3F","TAYH","POUL","EBAY","NRIV",
-                    "MELM","SUM","PETI","POK","RIM","SEPT","BUCK","JB38","JB33","TSW"),
-             col=c(
-               "dodgerblue2", "#E31A1C","green4","#6A3D9A","#FF7F00","black", "gold1","#FB9A99","#CAB2D6",
-               "#FDBF6F","gray70", "khaki2", "maroon", "orchid1", "deeppink1", "blue1", "steelblue4",
-               "darkturquoise", "green1", "yellow4", "yellow3","darkorange4", "brown" )) #from https://stackoverflow.com/questions/9563711/r-color-palettes-for-many-data-classes
+                                "MELM","SUM","PETI","POK","RIM","SEPT","BUCK","JB38","JB33","TSW"),
+                        old_code = c("NAH","GRB","PORT","HEB","PRJ","SAC","MASI","SAM","L3F","TH","POUL","Ebay","NRIV",
+                                     "MELM","SUM","PETITE","POK","RIM","SEPT","BUCK","CH38","CH33","TSW"),
+                        col=c("dodgerblue2", "#E31A1C","green4","#6A3D9A","#FF7F00","black", "gold1","#FB9A99","#CAB2D6",
+                               "#FDBF6F","gray70", "khaki2", "maroon", "orchid1", "deeppink1", "blue1", "steelblue4",
+                                "darkturquoise", "green1", "yellow4", "yellow3","darkorange4", "brown" )) #from https://stackoverflow.com/questions/9563711/r-color-palettes-for-many-data-classes
 #load the coordinates
 eelgrass_coords <- read.csv("Data/allsites_coords.csv")%>%
   st_as_sf(coords=c("long","lat"),crs=latlong,remove=FALSE)%>%
@@ -39,8 +40,8 @@ eelgrass_coords <- read.csv("Data/allsites_coords.csv")%>%
   left_join(.,colour_df)
 
 
-
-  
+#save the colour dataframe for other plots
+write.csv(colour_df,"Data/Colour_codes.csv",row.names=FALSE)  
 
 #Shapefiles
 can_eez <- read_sf("r:/Science/CESD/HES_MPAGroup/Data/Shapefiles/Canada_EEZ.shp")%>%st_transform(CanProj)
