@@ -5,8 +5,9 @@ library(vegan)
 library(graph4lg)
 library(dplyr)
 library(reshape2)
+library(ade4)
 
-setwd("C:/Users/JEFFERYN/Documents/GitHub/Eelgrass_Poolseq/output/")
+setwd("~/Documents/GitHub/Eelgrass_Poolseq/output/")
 
 fst<-read.csv("PairwiseFST.NoTSW.csv",header = T)
 head(fst)
@@ -126,14 +127,14 @@ print(p2)
 library(ggsci)
 
 p3 = ggplot(FST_plot, aes(x = log(DIST), y = FST)) +
-  geom_point(aes(color=Method)) +
+  geom_point(aes(color=Method), size=2.5) +
   #coord_cartesian(ylim=c(-0.05,0.35))+
   scale_y_continuous(limits=c(-0.02,0.35))+
   geom_smooth(aes(color=Method, fill=Method), method = lm) + 
     theme_minimal() +
-  theme(panel.border = element_rect(colour = "black", fill = NA)) +
-  scale_color_jco()+
-  scale_fill_jco()+
-  ylab(bquote("F"["ST"]/(1 -"F"["ST"]))) + xlab("Geographic distance (km)")                  
+  theme(panel.border = element_rect(colour = "black", fill = NA), text=element_text(size=20)) +
+  scale_color_d3()+
+  scale_fill_d3()+
+  ylab(bquote("F"["ST"]/(1 -"F"["ST"]))) + xlab("Log(Geographic distance (km))")                  
 
 print(p3)
