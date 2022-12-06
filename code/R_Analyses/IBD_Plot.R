@@ -138,3 +138,4 @@ p3 = ggplot(FST_plot, aes(x = log(DIST), y = FST)) +
   ylab(bquote("F"["ST"]/(1 -"F"["ST"]))) + xlab("Log(Geographic distance (km))")                  
 
 print(p3)
+ggsave(filename = "IBD_PlotUpdated.png",plot = p3, device = "png", path = "../Figures/", width = 10, height = 8, units = "in", dpi = 600)
