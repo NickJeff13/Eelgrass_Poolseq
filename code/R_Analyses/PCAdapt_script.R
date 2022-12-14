@@ -3,6 +3,7 @@ library(qvalue)
 library(ggplot2)
 library(ggrepel)
 library(viridis)
+library(dplyr)
 
 #get coords for plotting purposes
 latlong<-read.csv("/hdd3/EelgrassPoolSeq/EnvData/ReordedSiteCoords.csv", header = T)
@@ -42,26 +43,37 @@ poplist.subset.AtlanticOnly<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH",
 NS.poplist<-c("MASI", "SAC" , "L3F" , "PRJ" , "SAM" , "HEB" , "EBAY" ,"TAYH")
 
 #Now run the pcadapt function
-x <- pcadapt(zos.pcadapt.ATLonly, K=18)
+x <- pcadapt(zos.pcadapt.full, K=22)
+pc.percent<-round(100*(x$singular.values^2),digits = 2)
+
+y <- pcadapt(zos.pcadapt.NoTSW, K=21)
+pc.percent.y<-round(100*(y$singular.values^2),digits = 2)
+
+z <- pcadapt(zos.pcadapt.NS, K=6)
+pc.percent.z<-round(100*(z$singular.values^2),digits = 2)
 
 #add latitude to the dataframe for plotting 
-x$Lat<-latlong$lat[latlong$code %in% c("MASI", "SAC" , "L3F" , "PRJ" , "SAM" , "HEB" , "Ebay" ,"TH")]
+#all sites
+x$Lat <- latlong$lat
+z$Lat<-latlong$lat[latlong$code %in% c("MASI", "SAC" , "L3F" , "PRJ" , "SAM" , "HEB" , "Ebay" ,"TH")]
 
-x$Lat<-latlong$lat[latlong$code %in% c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
+y$Lat<-latlong$lat[latlong$code %in% c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
            "SEPT","GreatBay","HEB","PORT", "PETITE","NRIV","Ebay","POUL","JB33","JB38","BUCK","MELM","TH")]
 
 x$Lat<-latlong$lat[latlong$code %in% c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","SEPT","GreatBay",
                                        "HEB","PORT", "PETITE","NRIV","Ebay","POUL","BUCK","MELM","TH")]
 #scree plot suggests 3-4 PCs best explain pop structure
 #For the full set of pops, 5 PCs is best
-plot(x, option = "screeplot")
-score_plot2(x, pop = poplist.full)
+plot(z, option = "screeplot")
+#get the percent explained by each axis
+pc.percent<-round(100*(x$singular.values^2),digits = 2)
+score_plot2(x, pop = poplist.subset.AtlanticOnly)
 score_plot2(x, pop = NS.poplist,i=1,j=3)
 score_plot2(x, pop = NS.poplist,i=2,j=3)
 score_plot2(x,  pop = poplist.subset, plt.pkg = "ggplot", i=2, j=3)
 
 #Now redo pcadapt with K=3
-x2<-pcadapt(zos.pcadapt, K=3)
+x2<-pcadapt(zos.pcadapt.full, K=3)
 plot(x2, option = "manhattan")
 score_plot2(x2, pop = poplist.subset, i=1, j=2)
 score_plot2(x2,  pop = poplist.subset, i=2, j=3)
@@ -102,34 +114,59 @@ save.image("/hdd3/EelgrassPoolSeq/EnvData/Eelgrass_PCAdapt.RData")
 
 ####Modify PCAdapt plot function to add text labels and change theme
 pop=poplist.subset.AtlanticOnly
+pop=poplist.full
+
 score_plot2<-function (x, i = 1, j = 2, pop, col, plt.pkg = "ggplot") 
-  i=2
-  j=3
-{
-  if (attr(x, "K") == 1) {
-    j <- 1
-  }
-  if (i > attr(x, "K")) {
-    stop(paste0("i can't exceed ", attr(x, "K"), "."))
-  }
-  if (j > attr(x, "K")) {
-    stop(paste0("j can't exceed ", attr(x, "K"), "."))
-  }
-  df <- data.frame(PC_i = x$scores[, i], PC_j = x$scores[,j], Lat=x$Lat)
-  if (!missing(pop)) 
-    df$Pop <- pop
-  if (plt.pkg == "ggplot") {
+  i=1
+  #i=2
+  j=2
+  #j=3  
+  df <- data.frame(PC_i = z$scores[, i], PC_j = z$scores[,j], Lat=z$Lat)
+  df$Pop <-NS.poplist #poplist.noTSW
+# {
+#   if (attr(x, "K") == 1) {
+#     j <- 1
+#   }
+#   if (i > attr(x, "K")) {
+#     stop(paste0("i can't exceed ", attr(x, "K"), "."))
+#   }
+#   if (j > attr(x, "K")) {
+#     stop(paste0("j can't exceed ", attr(x, "K"), "."))
+#   }
+#   if (!missing(pop)) 
+#     df$Pop <- pop
+# 
+#   if (plt.pkg == "ggplot") {
+    
+    #try using factors for lat instead of continuous
+    df = df %>% arrange(Lat) %>% mutate(Lat2=factor(Lat, levels=as.character(Lat)))
+    
+    
+    #use this for plotting
     res.plot <- ggplot2::ggplot(df, aes_string("PC_i", "PC_j"))
       
-    res.plot + geom_point(aes(fill = Lat), size=4,shape=21,color="black") + 
-      scale_fill_viridis(discrete=F) +
+    res.plot + geom_point(aes(fill = Lat), size=4, shape=21, color="black") + 
+      #scale_fill_manu
+      scale_fill_viridis(discrete=F, option =  "D",begin = 0, end = 0.33) +
       geom_text_repel(label=df$Pop,size=6,fontface="bold") +
-      labs(x = paste0("PC", i), y = paste0("PC", j)) +
+      labs(x = paste0("PC", i," (29.05%)"), y = paste0("PC", j," (20.95%)")) +
            theme(axis.title.x = element_text(size=20), axis.title.y=element_text(size=20),axis.text = element_text(size=16),
                  panel.background = element_blank(),axis.line = element_line(colour = "black"), legend.position = "none")
       
 
-      
+    ggsave(plot=last_plot(),filename = "PCAdapt_NSonly_PC1_PC2.png",device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/For_Illustrator/",width = 12, height=10, units = "in", dpi = 600)
+    
+    #No pop labels used here
+    res.plot + geom_point(aes(fill = Lat), size=4, shape=21, color="black") + 
+      #scale_fill_manu
+      scale_fill_viridis(discrete=F, option =  "D",begin = 0, end = 0.33) +
+      #geom_text_repel(label=df$Pop,size=6,fontface="bold") +
+      labs(x = paste0("PC", i," (29.05%)"), y = paste0("PC", j," (20.95%)")) +
+      theme(axis.title.x = element_text(size=20), axis.title.y=element_text(size=20),axis.text = element_text(size=16),
+            panel.background = element_blank(),axis.line = element_line(colour = "black"), legend.position = "none")
+    ggsave(plot=last_plot(),filename = "PCAdapt_NSonly_PC1_PC2_NoLabels.png",device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/For_Illustrator/",width = 12, height=10, units = "in", dpi = 600)
+    
+ ##Don't use any of this down here, just part of the old function I was tearing apart      
 
       if (missing(col)) {
         res.plot <- res.plot + scale_color_hue(name = "")
