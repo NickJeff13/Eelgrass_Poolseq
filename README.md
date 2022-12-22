@@ -11,7 +11,7 @@ Scripts include trimming reads with fastp, alignment to the reference genome usi
 
 Post-bioinformatics analyses conducted in BayPass (Gautier 2015), Treemix (Pickrell and Pritchard 2012), and the R package poolfstat (Gautier et al. 2021). 
 
-![Sample sites](https://github.com/NickJeff13/Eelgrass_Poolseq/tree/main/Figures/SubmissionFigures/Map/Figure1-01.jpg)
+![Sample sites](https://github.com/NickJeff13/Eelgrass_Poolseq/tree/main/Figures/SubmissionFigures/Map/Fig-1_NewColours.png)
 
 ### Example output from Pool 10 to look at coverage
 ```
