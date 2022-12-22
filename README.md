@@ -32,5 +32,5 @@ Running a PCA on ~500,000 SNPs across all 23 sites results in a division along P
 ![Principal Components Analysis of Allele Frequencies](https://github.com/NickJeff13/Eelgrass_Poolseq/blob/main/Figures/SubmissionFigures/PCAs/PCA%20-%20all%20labeled-01.jpg)
 
 
-###Acknowledgements  
+### Acknowledgements  
 The authors wish to thank numerous collaborators that helped collect or provided eelgrass samples, including Tim Bernard, Isabelle Berube, Renee Bernier, Veronika Brzeski, Mike Coffin, Phil Colarusso, Chantal Coomber, Tessa Craig, France Dufresne, Coady Fitzpatrick, Robert Gregory, Javier Guijarro-Sabaniel, Cynthia Hays, Frederica Jacks, Kira Krumhansl, Andre Nadeau, John O’Brien, Shawn Roach, Stephanie-Robertson Kempton, Nathalie Simard, Sandrine Tousignant and Erica Watson, as well as Zeliang Wang and Dave Brickman for providing outputs from the BNAM oceanographic model. Kara Layton, Sarah Lehnert, Brenna Forester, and Thibaut Capblancq provided advice on conducting genomic offset analyses. We also thank the staff and technical personnel at Génome Québec for DNA extraction and sequencing. 
