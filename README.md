@@ -24,3 +24,7 @@ Chr05	1	32617008	19391682	32516701	99.6925	85.7323	35.6	48.8
 Chr06	1	29411071	17365610	29250779	99.455	85.1597	35.6	49.5
 
 ```
+
+Running a PCA on ~500,000 SNPs across all 23 sites results in a division along PC1 between Atlantic and Pacific sites, while PC2 shows a latitudinal gradient in population structure among Atlantic and subarctic sites
+
+![Principal Components Analysis of Allele Frequencies](https://github.com/NickJeff13/Eelgrass_Poolseq/blob/main/Figures/SubmissionFigures/PCAs/PCA%20-%20all%20labeled-01.jpg)
