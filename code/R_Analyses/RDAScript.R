@@ -22,7 +22,7 @@ library(viridis)
 library(viridisLite)
 
 #Set working directory
-setwd("/hdd3/EelgrassPoolSeq/")
+setwd("/mnt/sda/EelgrassPoolSeq/")
 
 #load data
 load("EnvData/RDA_and_GenomicVulnerability.RData")
@@ -145,7 +145,7 @@ legend("bottomright",legend=sites,bty="n",col="gray32", pch=21, cex=1, pt.bg=bg)
 #############################################################################################################
 #going to exclude TSW because it's so genetically different it will make the analysis weird and EBAY because BNAM doesn't model data within Bras D'Or lakes
 
-al.freq.forGV <- as.data.frame(zospools.forGV@refallele.readcount/zospools.forGV@readcoverage)
+al.freq.forGV <- as.data.frame(zospools.forGV@refallele.readcount/zospools.forGV@readcoverage) #468059 x 21 dimensions
 rownames(al.freq.forGV)<-paste0(zospools.forGV@snp.info$Chromosome, "_", zospools.forGV@snp.info$Position)
 #remove scaffolds and focus on chromosomes 1-6
 al.freq.forGV2<-al.freq.forGV[!grepl("scaffold",rownames(al.freq.forGV)), ]
@@ -153,7 +153,7 @@ al.freq.forGV2<-al.freq.forGV[!grepl("scaffold",rownames(al.freq.forGV)), ]
 
 alleles.forGV<-t(al.freq.forGV2)
 rownames(alleles.forGV)<- c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
-                            "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB33","JB38","BUCK","MELM","TAYH")
+                            "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB1","JB2","BUCK","MELM","TAYH")
 
 #Load in Environmental data
 envdat<-read.csv("~/Documents/GitHub/Eelgrass_Poolseq/Data/Eelgrass_FutureEnv_PerSite.csv",header = T)
@@ -199,20 +199,20 @@ scaleenv_45_1 <-as.data.frame(scaleenv_45[,-c(2,7)])
 scaleenv_85_1 <-as.data.frame(scaleenv_85[,-c(2,7)])
 
 #rownames(envdat)<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
- #                   "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB33","JB38","BUCK","MELM","TAYH")
+ #                   "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB1","JB2","BUCK","MELM","TAYH")
 rownames(envonly_present1)<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
-                            "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB33","JB38","BUCK","MELM","TAYH")
+                            "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB1","JB2","BUCK","MELM","TAYH")
 #get ready to run the RDA - transpose the al.freq matrix
 identical(rownames(alleles.forGV),rownames(envonly_present1))
 #TRUE
 
 #Read in PC scores to correct for structure - these are scores from the first two PCA axes from pcadapt 
-pcascores<-read.table("/hdd3/EelgrassPoolSeq/PCAScores_ForRDA_Correction.txt")
+pcascores<-read.table("PCAScores_ForRDA_Correction.txt")
 pcascores
 pcascores<-t(pcascores)
-dim(pcascores)
+dim(pcascores) #21 x 2
 rownames(pcascores)<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
-                       "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB33","JB38","BUCK","MELM","TAYH")
+                       "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB1","JB2","BUCK","MELM","TAYH")
 
 #we have 21 rows for the populations, x 4 columns of coordinates/env data, and 468059 columns of alleles. Use scaled environmental data.
 #1. Climate only RDA
@@ -278,7 +278,7 @@ df_species  <- data.frame(summary(zos.rda.full)$species[,1:2])# get the species 
 df_environ  <- as.data.frame(scores(zos.rda.full, display = 'bp'))
 df_sites <- as.data.frame(scores(zos.rda.full, display="wa"))
 df_sites$Sites <- factor(rownames(df_sites), levels = c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
-                                                          "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB33","JB38","BUCK","MELM","TAYH"))
+                                                          "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB1","JB2","BUCK","MELM","TAYH"))
 cca1_varex<-round(summary(zos.rda.full)$cont$importance[2,1]*100,2) #Get percentage of variance explained by first axis
 cca2_varex<-round(summary(zos.rda.full)$cont$importance[2,2]*100,2) #Get percentage of variance explained by second axis
 
@@ -494,7 +494,7 @@ outlier.df_species  <- data.frame(summary(RDA_outliers)$species[,1:2])# get the 
 outlier.df_environ  <- as.data.frame(scores(RDA_outliers, display = 'bp'))
 outlier.df_sites <- as.data.frame(scores(RDA_outliers, display="wa"))
 outlier.df_sites$Sites <- factor(rownames(outlier.df_sites), levels = c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
-                                                        "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB33","JB38","BUCK","MELM","TAYH"))
+                                                        "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB1","JB2","BUCK","MELM","TAYH"))
 cca1_varex<-round(summary(RDA_outliers)$cont$importance[2,1]*100,2) #Get percentage of variance explained by first axis
 cca2_varex<-round(summary(RDA_outliers)$cont$importance[2,2]*100,2) #Get percentage of variance explained by second axis
 
