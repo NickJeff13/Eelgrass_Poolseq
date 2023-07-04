@@ -216,13 +216,13 @@ rownames(pcascores)<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
 
 #we have 21 rows for the populations, x 4 columns of coordinates/env data, and 468059 columns of alleles. Use scaled environmental data.
 #1. Climate only RDA
-zos.rda.full<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SBTM_AnnMean + SST_SpringMean + SST_SummerMax, data=envonly_present1, scale=T)
+zos.rda.full<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SST_SpringMean + SST_SummerMax, data=envonly_present1, scale=T)
 zos.rda.full
 summary(zos.rda.full)
 #extract contributions of RDAs 1:3
 full.axis.perc <- round(100*(summary(zos.rda.full)$cont$importance[2, 1:3]), 2)
 #2. Partial RDA controlling for lat and long
-zos.rda.partial<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SBTM_AnnMean + SST_SpringMean + SST_SummerMax + Condition(Long + Lat),data=envonly_present1, scale=T)
+zos.rda.partial<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SST_SpringMean + SST_SummerMax + Condition(Long + Lat),data=envonly_present1, scale=T)
 zos.rda.partial
 summary(zos.rda.partial)
 #3. RDA using only lat and long
@@ -230,13 +230,14 @@ zos.rda.dists <- rda(alleles.forGV~ Long + Lat, data=envonly_present1, scale=T)
 zos.rda.dists
 summary(zos.rda.dists)
 #4. RDA conditioning on PCA scores
-zos.rda.pca<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SBTM_AnnMean + SST_SpringMean + SST_SummerMax + Condition(pcascores),data=envonly_present1, scale=T)
+zos.rda.pca<-vegan::rda(alleles.forGV ~ TBTM_WinterMin +  SST_SpringMean + SST_SummerMax + Condition(pcascores),data=envonly_present1, scale=T)
 zos.rda.pca
 summary(zos.rda.pca)
 
+##These scores are for the RDAs with only temperature variables, no salinity included!! Testing this June 26 2023
 #Look at aliasing and R squared adjusted
 alias(zos.rda.full,names=T) #no aliasing required
-RsquareAdj(zos.rda.full) #0.19
+RsquareAdj(zos.rda.full) #0.1449 
 global_r2<-RsquareAdj(zos.rda.full)$adj.r.squared
 RsquareAdj(zos.rda.partial) #0.0976
 RsquareAdj(zos.rda.dists) #0.163
@@ -383,6 +384,8 @@ thres_env<-0.04
 outliers <- data.frame(Loci = colnames(alleles.forGV)[which(rdadapt_env$p.values<thres_env)], 
                        p.value = rdadapt_env$p.values[which(rdadapt_env$p.values<thres_env)], 
                        contig = unlist(lapply(strsplit(colnames(alleles.forGV)[which(rdadapt_env$p.values<thres_env)], split = "_"), function(x) x[1])))
+
+#taking random subsets of 1000 loci 
 
 ## Now do it for structure corrected RDA
 outliers.PCAcorrected <- data.frame(Loci = colnames(alleles.forGV)[which(rdadapt_pca$p.values<thres_env)], 
@@ -563,7 +566,7 @@ ras<-remove.NAs.stack(rast.stack = fs)
 #run the adaptive index function from Capblancq & Forester 2021 - removed "range" parameter due to masking issues
 #can use method = predict or loadings, both give slightly different results
 library(raster)
-res_RDA_proj_current <- adaptive_index(RDA = RDA_outliers, K = 2, env_pres = ras, range=eelshape, method = "predict", scale_env = scale_env, center_env = center_env)
+res_RDA_proj_current <- adaptive_index(RDA = zos.rda.full, K = 2, env_pres = ras, range=eelshape, method = "predict", scale_env = scale_env, center_env = center_env)
 
 #res_RDA_proj_current <- adaptive_index(RDA = RDA_outliers, K = 2, env_pres = ras, range=eelshape ,method = "loadings", scale_env = scale_env, center_env = center_env)
 
@@ -619,8 +622,8 @@ ras_85<-remove.NAs.stack(rast.stack = fs85)
 
 
 #run this function with our present-day data and our future rasters
-res_RDA_proj45 <- genomic_offset(RDA_outliers, K = 2, env_pres = ras, env_fut = ras_45, range = eelshape, method = "loadings", scale_env = scale_env, center_env = center_env)
-res_RDA_proj85 <- genomic_offset(RDA_outliers, K = 2, env_pres = ras, env_fut = ras_85, range = eelshape, method = "loadings", scale_env = scale_env, center_env = center_env)
+res_RDA_proj45 <- genomic_offset(zos.rda.full, K = 2, env_pres = ras, env_fut = ras_45, range = eelshape, method = "loadings", scale_env = scale_env, center_env = center_env)
+res_RDA_proj85 <- genomic_offset(zos.rda.full, K = 2, env_pres = ras, env_fut = ras_85, range = eelshape, method = "loadings", scale_env = scale_env, center_env = center_env)
 
 ## Table global genetic offset predicted for RCP4.5 and 8.5
 RDA_proj_offset <- data.frame(rbind(rasterToPoints(res_RDA_proj45$Proj_offset_global), 
@@ -634,16 +637,16 @@ colors2<-terrain.colors(n = 5)
 
 offsetplot<- ggplot(data = RDA_proj_offset) + 
   geom_sf(data = admin, fill=gray(.9), size=0) +
-  geom_raster(aes(x = x, y = y, fill = cut(Global_offset, breaks=seq(0, 2, by = 0.4), include.lowest = T)), alpha = 1) + 
-  scale_fill_manual(values = colors, labels = c("0-0.4","0.4-0.8","0.8-1.2","1.2-1.6","1.6-2.0"), 
-                    guide = guide_legend(title="Genomic offset", title.position = "top", title.hjust = 0.5, ncol = 5,label.position = "bottom"), na.translate = F) +
+  geom_raster(aes(x = x, y = y, fill = cut(Global_offset, breaks=seq(0, 1.0, by = 0.2), include.lowest = T)), alpha = 1) + 
+  scale_fill_manual(values = colors, labels = c("0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"), 
+                    guide = guide_legend(title="Genomic offset", title.position = "top", title.hjust = 0.5, ncol = 8,label.position = "bottom"), na.translate = F) +
   geom_sf(data = admin, fill=NA, size=0.1) +
   coord_sf(xlim = c(-82, -52), ylim = c(42,64), expand = FALSE)  +
   xlab("Longitude") + ylab("Latitude") +
   facet_grid(~ RCP) +
   theme_bw(base_size = 18, base_family = "Arial") +
   theme(panel.grid = element_blank(), plot.background = element_blank(), strip.background=element_blank(), panel.background = element_blank(), 
-        strip.text = element_text(size=18),legend.position = "bottom", legend.direction = "horizontal", legend.spacing.x = unit(0,"cm"))
+        strip.text = element_text(size=18),legend.position = "bottom",  legend.spacing.x = unit(0,"cm"))
 
 offsetplot
 #offsetplot+geom_text_repel(data=envdat, aes(x=Long, y=Lat, label=Site, family="Arial",fontface="bold"), max.overlaps = 20, nudge_x=1.5, nudge_y = -0.5)
