@@ -6,14 +6,14 @@ library(viridis)
 library(dplyr)
 
 #get coords for plotting purposes
-latlong<-read.csv("/hdd3/EelgrassPoolSeq/EnvData/ReordedSiteCoords.csv", header = T)
+latlong<-read.csv("/mnt/sda/EelgrassPoolSeq/EnvData/ReordedSiteCoords.csv", header = T)
 head(latlong)
 
 #Now get our allele tables for pcadapt from the zospooldata 
 al.freq <- zospools@refallele.readcount/zospools@readcoverage
 
 al.freq2<-zospools.noTSW@refallele.readcount/zospools.noTSW@readcoverage
-
+al.freq2<-al.freq2[,-16]
 #drop James Bay too (pops 9, 18 & 19)
 al.freq3<-al.freq2[,-c(9,18:19)]
 
@@ -26,16 +26,16 @@ zos.pcadapt.full <- read.pcadapt(input=t(al.freq), type="pool")
 
 zos.pcadapt.NS<-read.pcadapt(input = t(al.freq4),type = 'pool')
 
-zos.pcadapt.NoTSW<-read.pcadapt(input = t(al.freq2),type = 'pool')
+zos.pcadapt.NoTSW<-read.pcadapt(input = t(al.freq2),type = 'pool') #and no Ebay
 
 zos.pcadapt.ATLonly<-read.pcadapt(input = t(al.freq3),type = 'pool')
 
 #Poplists for each subset of data
 poplist.full<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
-  "SEPT","GRB","HEB","PORT", "PETI","NRIV","EBAY","POUL","JB33","JB38","BUCK","MELM","TAYH","TSW")
+  "SEPT","GRB","HEB","PORT", "PETI","NRIV","EBAY","POUL","JB1","JB2","BUCK","MELM","TAYH","TSW")
 
 poplist.noTSW<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
-           "SEPT","GRB","HEB","PORT", "PETI","NRIV","EBAY","POUL","JB33","JB38","BUCK","MELM","TAYH")
+           "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB1","JB2","BUCK","MELM","TAYH")
 
 poplist.subset.AtlanticOnly<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH",
            "SEPT","GRB","HEB","PORT", "PETI","NRIV","EBAY","POUL","BUCK","MELM","TAYH")
@@ -58,19 +58,19 @@ x$Lat <- latlong$lat
 z$Lat<-latlong$lat[latlong$code %in% c("MASI", "SAC" , "L3F" , "PRJ" , "SAM" , "HEB" , "Ebay" ,"TH")]
 
 y$Lat<-latlong$lat[latlong$code %in% c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
-           "SEPT","GreatBay","HEB","PORT", "PETITE","NRIV","Ebay","POUL","JB33","JB38","BUCK","MELM","TH")]
+           "SEPT","GreatBay","HEB","PORT", "PETITE","NRIV","POUL","JB1","JB2","BUCK","MELM","TH")]
 
 x$Lat<-latlong$lat[latlong$code %in% c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","SEPT","GreatBay",
                                        "HEB","PORT", "PETITE","NRIV","Ebay","POUL","BUCK","MELM","TH")]
 #scree plot suggests 3-4 PCs best explain pop structure
 #For the full set of pops, 5 PCs is best
-plot(z, option = "screeplot")
+plot(y, option = "screeplot")
 #get the percent explained by each axis
-pc.percent<-round(100*(x$singular.values^2),digits = 2)
-score_plot2(x, pop = poplist.subset.AtlanticOnly)
-score_plot2(x, pop = NS.poplist,i=1,j=3)
-score_plot2(x, pop = NS.poplist,i=2,j=3)
-score_plot2(x,  pop = poplist.subset, plt.pkg = "ggplot", i=2, j=3)
+pc.percent<-round(100*(y$singular.values^2),digits = 2)
+score_plot(y, pop = poplist.noTSW)
+score_plot2(y, pop = NS.poplist,i=1,j=3)
+score_plot2(y, pop = NS.poplist,i=2,j=3)
+score_plot2(y,  pop = poplist.subset, plt.pkg = "ggplot", i=2, j=3)
 
 #Now redo pcadapt with K=3
 x2<-pcadapt(zos.pcadapt.full, K=3)
@@ -121,8 +121,8 @@ score_plot2<-function (x, i = 1, j = 2, pop, col, plt.pkg = "ggplot")
   #i=2
   j=2
   #j=3  
-  df <- data.frame(PC_i = z$scores[, i], PC_j = z$scores[,j], Lat=z$Lat)
-  df$Pop <-NS.poplist #poplist.noTSW
+  df <- data.frame(PC_i = y$scores[, i], PC_j = z$scores[,j], Lat=z$Lat)
+  df$Pop <-poplist.noTSW
 # {
 #   if (attr(x, "K") == 1) {
 #     j <- 1

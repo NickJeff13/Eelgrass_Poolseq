@@ -217,13 +217,13 @@ rownames(pcascores)<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
 #we have 21 rows for the populations, x 4 columns of coordinates/env data, and 468059 columns of alleles. Use scaled environmental data.
 #1. Climate only RDA
 zos.rda.full<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SBTM_AnnMean + SST_SpringMean + SST_SummerMax, data=envonly_present1, scale=T)
-zos.rda.full
+zos.rda.full #constrained 0.352
 summary(zos.rda.full)
 #extract contributions of RDAs 1:3
 full.axis.perc <- round(100*(summary(zos.rda.full)$cont$importance[2, 1:3]), 2)
 #2. Partial RDA controlling for lat and long
 zos.rda.partial<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SBTM_AnnMean + SST_SpringMean + SST_SummerMax + Condition(Long + Lat),data=envonly_present1, scale=T)
-zos.rda.partial
+zos.rda.partial #constrained 0.2357 Conditional 0.247
 summary(zos.rda.partial)
 #3. RDA using only lat and long
 zos.rda.dists <- rda(alleles.forGV~ Long + Lat, data=envonly_present1, scale=T)
@@ -363,22 +363,10 @@ rdadapt_env_forPlot$BP <- chroms$X2
 rdadapt_env_forPlot$SNP <- names(zos.rda.full$colsum)
 head(rdadapt_env_forPlot)
 
-outlier.manhattan<- ggman(rdadapt_env_forPlot, chrom="Chromosome", bp="BP", snp="SNP", pvlue="p.values", sigLine = NA, 
-                    logTransform = T,
-                     ymin=0, ymax=2,
-                     xlabel = "Chromosome",
-                     ylabel = "-log10(p-value)",
-                     relative.positions = T,
-                    pointSize = 0.5,
-                    title = "") 
-highlighted.outliers<-ggmanHighlight(ggmanPlot = outlier.manhattan, highlight = as.vector(outliers$Loci), colour="red",size=0.75)
-highlighted.outliers + scale_color_manual(values=c("black","grey"))+theme_classic(base_size = 20)
-ggsave(filename = "EnvOutliers_Manhattan.png",device = "png",path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/",width = 10, height = 8, units="in")
-
 
 ## P-values threshold after Bonferroni correction
 #thres_env <- 0.1/length(rdadapt_env$p.values)
-thres_env<-0.04
+thres_env<-0.045
 ## Identifying the loci that are below the p-value threshold
 outliers <- data.frame(Loci = colnames(alleles.forGV)[which(rdadapt_env$p.values<thres_env)], 
                        p.value = rdadapt_env$p.values[which(rdadapt_env$p.values<thres_env)], 
@@ -397,6 +385,20 @@ intersect(outliers$Loci, outliers.PCAcorrected$Loci)#806 outliers overlap when I
 
 ## List of outlier names
 #outliers_rdadapt_env <- as.character(outliers$Loci[!duplicated(outliers$contig)])
+
+#Basic manhattan plot of outlier distribution
+outlier.manhattan<- ggman(rdadapt_env_forPlot, chrom="Chromosome", bp="BP", snp="SNP", pvlue="p.values", sigLine = NA, 
+                          logTransform = T,
+                          ymin=0, ymax=2,
+                          xlabel = "Chromosome",
+                          ylabel = "-log10(p-value)",
+                          relative.positions = T,
+                          pointSize = 0.5,
+                          title = "") 
+highlighted.outliers<-ggmanHighlight(ggmanPlot = outlier.manhattan, highlight = as.vector(outliers$Loci), colour="red",size=0.9)
+highlighted.outliers + scale_color_manual(values=c("black","grey"))+theme_classic(base_size = 20)
+ggsave(filename = "EnvOutliers_Manhattan.png",device = "png",path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/",width = 10, height = 8, units="in")
+
 
 ## Formatting table for ggplot
 locus_scores <- scores(zos.rda.full, choices=c(1:2), display="species", scaling="none") # vegan references "species", here these are the loci
@@ -478,7 +480,7 @@ RDA_outliers
 summary(RDA_outliers)
 #Look at aliasing and R squared adjusted
 alias(RDA_outliers,names=T) #no aliasing required
-RsquareAdj(RDA_outliers) #0.7459
+RsquareAdj(RDA_outliers) #0.778
 
 #extract contributions of RDAs 1:3
 outlier.axis.perc <- round(100*(summary(RDA_outliers)$cont$importance[2, 1:3]), 2)
@@ -587,7 +589,7 @@ admin<-rnaturalearth::ne_countries(scale="large", returnclass="sf") #grabs all c
 adapt_plot<-ggplot(data = TAB_RDA) + 
             geom_sf(data = admin, fill=gray(.9), size=0) +
             geom_raster(aes(x = x, y = y, fill = cut(value, breaks=seq(0, 1, length.out=10), include.lowest = T))) + 
-            scale_fill_viridis_d(alpha = 1, direction = -1, option = "D", 
+            scale_fill_viridis_d(alpha = 1, direction = 1, option = "A", 
                                  labels = c("Negative scores","","","","Intermediate scores","","","","Positive scores")) +
             geom_sf(data = admin, fill=NA, size=0.1) +
             coord_sf(xlim = c(-82, -52), ylim = c(42, 64), expand = FALSE) +
@@ -599,10 +601,10 @@ adapt_plot<-ggplot(data = TAB_RDA) +
                   panel.background = element_blank(), strip.text = element_text(size=18),
                   legend.position = "right", legend.direction = "vertical",legend.spacing = unit(0,"cm"))
 
-adapt_plot+geom_point(data=coords,aes(x=Long,y=Lat),shape=21, fill="NA", size=2.25)
+adapt_plot+geom_point(data=coords,aes(x=Long,y=Lat),shape=21, fill="white", size=1.75)
 #adapt_plot + geom_text_repel(data=envdat, aes(x=Long, y=Lat, label=Site, family="Calibri"), max.overlaps = 20, nudge_x=1.5, nudge_y = -0.5)
 
-ggsave(filename = "Eelgrass_AdaptiveIndex.png", plot=last_plot(), device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/", width = 12, height = 10, units = "in")
+ggsave(filename = "NEWEelgrass_AdaptiveIndex.png", plot=last_plot(), device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/", width = 12, height = 10, units = "in")
 
 #####################################################################################################################################################################################
 #Now, let's do the genomic offset scores based on climate RCPs 4.5 and 8.5
@@ -631,25 +633,28 @@ RDA_proj_offset <- data.frame(rbind(rasterToPoints(res_RDA_proj45$Proj_offset_gl
                                       rep("8.5", nrow(rasterToPoints(res_RDA_proj85$Proj_offset_global)))))
 
 ## Projecting genomic offset on a map
-colors<-viridis::viridis(n = 8, option="D")
+colors<-viridis::viridis(n = 5, option="D")
 colors2<-terrain.colors(n = 5)
+#create labels for facets 
+RCP.labs<-c("BNAM+RCP4.5","BNAM+RCP8.5")
+names(RCP.labs)<-c("4.5","8.5")
 
 offsetplot<- ggplot(data = RDA_proj_offset) + 
   geom_sf(data = admin, fill=gray(.9), size=0) +
-  geom_raster(aes(x = x, y = y, fill = cut(Global_offset, breaks=seq(0, 1.6, by = 0.2), include.lowest = T)), alpha = 1) + 
-  scale_fill_manual(values = colors, labels = c("0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0", "1.0-1.2","1.2-1.4", "1.4-1.6"), 
-                    guide = guide_legend(title="Genomic offset", title.position = "top", title.hjust = 0.5, ncol = 8,label.position = "bottom"), na.translate = F) +
+  geom_raster(aes(x = x, y = y, fill = cut(Global_offset, breaks=seq(0, 2.0, by = 0.4), include.lowest = T)), alpha = 1) + 
+  scale_fill_manual(values = colors, labels = c("0-0.4","0.4-0.8","0.8-1.2","1.2-1.6","1.6-2.0"), 
+                    guide = guide_legend(title="Genomic offset", title.position = "top", title.hjust = 0.5, ncol = 5,label.position = "bottom"), na.translate = F) +
   geom_sf(data = admin, fill=NA, size=0.1) +
   coord_sf(xlim = c(-82, -52), ylim = c(42,64), expand = FALSE)  +
   xlab("Longitude") + ylab("Latitude") +
-  facet_grid(~ RCP) +
+  facet_grid(~ RCP, labeller=labeller(RCP=RCP.labs)) +
   theme_bw(base_size = 18, base_family = "Arial") +
   theme(panel.grid = element_blank(), plot.background = element_blank(), strip.background=element_blank(), panel.background = element_blank(), 
         strip.text = element_text(size=18),legend.position = "bottom",  legend.spacing.x = unit(0,"cm"))
 
-offsetplot
+offsetplot+geom_point(data=coords,aes(x=Long,y=Lat),shape=21, fill="white", size=1.75)
 #offsetplot+geom_text_repel(data=envdat, aes(x=Long, y=Lat, label=Site, family="Arial",fontface="bold"), max.overlaps = 20, nudge_x=1.5, nudge_y = -0.5)
-ggsave(filename = "GenomicOffset_LegendBottom.png", plot=offsetplot, device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/", 
+ggsave(filename = "NEWGenomicOffset_LegendBottom.png", plot=offsetplot, device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/", 
        width = 12, height = 10, units = "in")
 
 #offsetplot + geom_point(data=genoffset_finalFINALScores, aes(x=Long, y=Lat, colour=GenOffset85))

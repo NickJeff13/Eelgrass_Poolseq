@@ -241,7 +241,7 @@ RsquareAdj(zos.rda.full) #0.1449
 global_r2<-RsquareAdj(zos.rda.full)$adj.r.squared
 RsquareAdj(zos.rda.partial) #0.0976
 RsquareAdj(zos.rda.dists) #0.163
-RsquareAdj(zos.rda.pca) #0.205
+RsquareAdj(zos.rda.pca) #0.149
 
 #anova by terms for each rda - just use 999 permutations, more than that takes forever
 anova.cca(zos.rda.full, permutations = 999, parallel=20) #global significance = 0.001
@@ -380,6 +380,7 @@ ggsave(filename = "EnvOutliers_Manhattan.png",device = "png",path = "~/Documents
 ## P-values threshold after Bonferroni correction
 #thres_env <- 0.1/length(rdadapt_env$p.values)
 thres_env<-0.04
+qthresh <- 0.1
 ## Identifying the loci that are below the p-value threshold
 outliers <- data.frame(Loci = colnames(alleles.forGV)[which(rdadapt_env$p.values<thres_env)], 
                        p.value = rdadapt_env$p.values[which(rdadapt_env$p.values<thres_env)], 
@@ -473,13 +474,13 @@ eelshape <- erase(eelshapeFull, sable)
 
 
 #Run just an RDA with the outliers
-RDA_outliers<-vegan::rda(alleles.forGV[,outliers$Loci] ~  SBTM_AnnMean + TBTM_WinterMin + SST_SpringMean + SST_SummerMax, data=envonly_present1, scale=T)
+RDA_outliers<-vegan::rda(alleles.forGV[,outliers$Loci] ~  TBTM_WinterMin + SST_SpringMean + SST_SummerMax, data=envonly_present1, scale=T)
 anova.cca(RDA_outliers) #p<-0.001
 RDA_outliers
 summary(RDA_outliers)
 #Look at aliasing and R squared adjusted
 alias(RDA_outliers,names=T) #no aliasing required
-RsquareAdj(RDA_outliers) #0.7459
+RsquareAdj(RDA_outliers) #0.547
 
 #extract contributions of RDAs 1:3
 outlier.axis.perc <- round(100*(summary(RDA_outliers)$cont$importance[2, 1:3]), 2)
@@ -566,7 +567,9 @@ ras<-remove.NAs.stack(rast.stack = fs)
 #run the adaptive index function from Capblancq & Forester 2021 - removed "range" parameter due to masking issues
 #can use method = predict or loadings, both give slightly different results
 library(raster)
-res_RDA_proj_current <- adaptive_index(RDA = zos.rda.full, K = 2, env_pres = ras, range=eelshape, method = "predict", scale_env = scale_env, center_env = center_env)
+rescaled_env<-scale_env[-c(2,3,4,7)]
+recentered_env<-center_env[-c(2,3,4,7)]
+res_RDA_proj_current <- adaptive_index(RDA = RDA_outliers, K = 2, env_pres = ras, range=eelshape, method = "predict", scale_env = rescaled_env, center_env = recentered_env)
 
 #res_RDA_proj_current <- adaptive_index(RDA = RDA_outliers, K = 2, env_pres = ras, range=eelshape ,method = "loadings", scale_env = scale_env, center_env = center_env)
 
@@ -600,7 +603,7 @@ adapt_plot<-ggplot(data = TAB_RDA) +
                   panel.background = element_blank(), strip.text = element_text(size=18),
                   legend.position = "right", legend.direction = "vertical",legend.spacing = unit(0,"cm"))
 
-adapt_plot+geom_point(data=coords,aes(x=Long,y=Lat),shape=21, fill="NA", size=2.25)
+adapt_plot+geom_point(data=coords,aes(x=Long,y=Lat),shape=17, fill="NA", size=2.25)
 #adapt_plot + geom_text_repel(data=envdat, aes(x=Long, y=Lat, label=Site, family="Calibri"), max.overlaps = 20, nudge_x=1.5, nudge_y = -0.5)
 
 ggsave(filename = "Eelgrass_AdaptiveIndex.png", plot=last_plot(), device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/", width = 12, height = 10, units = "in")
@@ -622,8 +625,8 @@ ras_85<-remove.NAs.stack(rast.stack = fs85)
 
 
 #run this function with our present-day data and our future rasters
-res_RDA_proj45 <- genomic_offset(zos.rda.full, K = 2, env_pres = ras, env_fut = ras_45, range = eelshape, method = "loadings", scale_env = scale_env, center_env = center_env)
-res_RDA_proj85 <- genomic_offset(zos.rda.full, K = 2, env_pres = ras, env_fut = ras_85, range = eelshape, method = "loadings", scale_env = scale_env, center_env = center_env)
+res_RDA_proj45 <- genomic_offset(RDA_outliers, K = 2, env_pres = ras, env_fut = ras_45, range = eelshape, method = "loadings", scale_env = rescaled_env, center_env = recentered_env)
+res_RDA_proj85 <- genomic_offset(RDA_outliers, K = 2, env_pres = ras, env_fut = ras_85, range = eelshape, method = "loadings", scale_env = rescaled_env, center_env = recentered_env)
 
 ## Table global genetic offset predicted for RCP4.5 and 8.5
 RDA_proj_offset <- data.frame(rbind(rasterToPoints(res_RDA_proj45$Proj_offset_global), 
@@ -632,12 +635,12 @@ RDA_proj_offset <- data.frame(rbind(rasterToPoints(res_RDA_proj45$Proj_offset_gl
                                       rep("8.5", nrow(rasterToPoints(res_RDA_proj85$Proj_offset_global)))))
 
 ## Projecting genomic offset on a map
-colors<-viridis::viridis(n = 5, option="D")
+colors<-viridis::viridis(n = 6, option="D")
 colors2<-terrain.colors(n = 5)
 
 offsetplot<- ggplot(data = RDA_proj_offset) + 
   geom_sf(data = admin, fill=gray(.9), size=0) +
-  geom_raster(aes(x = x, y = y, fill = cut(Global_offset, breaks=seq(0, 1.0, by = 0.2), include.lowest = T)), alpha = 1) + 
+  geom_raster(aes(x = x, y = y, fill = cut(Global_offset, breaks=seq(0, 2.6, by = 0.4333), include.lowest = T)), alpha = 1) + 
   scale_fill_manual(values = colors, labels = c("0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"), 
                     guide = guide_legend(title="Genomic offset", title.position = "top", title.hjust = 0.5, ncol = 8,label.position = "bottom"), na.translate = F) +
   geom_sf(data = admin, fill=NA, size=0.1) +
@@ -757,110 +760,9 @@ ggsave(filename = "RDAScoresMapped.pdf", plot=ZOS_RDA,device = "pdf", width = 12
 GValleles.subset.99quant <- as.data.frame(alleles.forGV) %>% select(outlier.99.names)
 dim(GValleles.subset.99quant)
 
-###########################################GRADIENT FOREST########################################################################
-##running gradient forest to determine which environmental variables are important in explaining genomic variation
-#So, we have 2 allele frequency data frames (GValleles.subset and GValleles.subset.99quant)
-#We also have environmental data, bottom and surface salinity and temperature for present day, RCP 4.5 and RCP 8.5 
-library(gradientForest)
-
-maxLevel <- log2(0.368*nrow(envonly)/2)  
-
-outlierAlleles.forGF<-alleles.forGV[,outliers$Loci]
-
-#use make.names so that gradientForest likes all my snp names
-colnames() <- make.names(names = colnames(outlierAlleles.forGF), unique = T, allow_ = T)
-
-envdat.forGF <-envdat %>% dplyr::select(TBTM_WinterMin, SBTM_AnnMean, SSS_AnnMean, SST_SpringMean, SST_SummerMax)
-#First run the gradient forest with all snps to find importance of variables
-zos_GFout <- gradientForest(cbind(envdat.forGF, alleles.forGV[,outliers$Loci]), 
-                            predictor.vars=colnames(envdat.forGF),
-                            response.vars=colnames(alleles.forGV[,outliers$Loci]), 
-                            ntree=500, 
-                            maxLevel=maxLevel, 
-                            trace=T, 
-                            corr.threshold=0.5)
-zos_GFout
-#Now do some plots. Type=0 is the predictor overall importance plot. 
-plot(zos_GFout, type="O")
-
-
-accu_imp <- as.data.frame(zos_GFout$overall.imp)
-names(accu_imp)[1] <- "importance"
-accu_imp <- tibble::rownames_to_column(accu_imp, "Variable")
-
-Type <- c("Salinity", "Salinity", "Temperature", "Temperature", "Temperature")
-
-accu_imp <- cbind(accu_imp, Type)
-
-GF_plot <- ggplot(data=accu_imp, aes(x=reorder(Variable, importance),y=(importance), fill=Type)) +geom_bar(stat="identity", colour="black", width=0.8)+
-  theme_bw()+#scale_y_continuous(lim=c(0,15),expand = c(0, 0))+
-  #Change number of colours to number of "Types" of environmental vairables -- if want to colour by type
-  #scale_fill_brewer(palette="Set1")+
-  scale_fill_manual(values=c("#005BFFFF","#FF0037FF"))+
-  geom_hline(yintercept = 0)+
-  coord_flip()+
-  theme(panel.grid.major = element_blank(), legend.position=c(0.8,0.3),legend.key.size = unit(1, 'lines'),
-        legend.title = element_blank(), panel.border = element_blank(),axis.ticks.y = element_blank(),
-        legend.text = element_text(size = 12), axis.line.x = element_line(colour="black"), 
-        panel.grid.minor = element_blank(),axis.text.x = element_text(size = 12),axis.text.y=element_text(size = 12),axis.title=element_text(size=14,color="black"),
-        panel.background = element_blank())+ylab("Accuracy Importance")+ xlab("")
-GF_plot
-
-
-
-check_rsq <- zos_GFout$res
-mean(check_rsq$rsq) ##mean R2 is 0.44
-
-
-# transform CURRENT env using gf model
-predOUT_maf <- predict(zos_GFout, envdat.forGF)
-
-# transform FUTURE RCP 4.5 VARIABLES using gf model
-rcp45_uncor<-envonly_45 %>% dplyr::rename(TBTM_WinterMin=TBTM_WinterMin45, SBTM_AnnMean = SBTM_AnnMean45, 
-                                          SSS_AnnMean = SSS_AnnMean45, SST_SpringMean = SST_SpringMean45, SST_SummerMax= SST_SummerMax45) %>% 
-                                          dplyr::select(TBTM_WinterMin, SBTM_AnnMean, SSS_AnnMean, SST_SpringMean, SST_SummerMax)
-projOUT_maf_rcp45 <- predict(zos_GFout, rcp45_uncor)
-
-# transform FUTURE RCP 8.5 VARIABLES using gf model
-rcp85_uncor<-envonly_85 %>% dplyr::rename(TBTM_WinterMin=TBTM_WinterMin85, SBTM_AnnMean = SBTM_AnnMean85, 
-                                          SSS_AnnMean = SSS_AnnMean85, SST_SpringMean = SST_SpringMean85, SST_SummerMax= SST_SummerMax85) %>% 
-  dplyr::select(TBTM_WinterMin, SBTM_AnnMean, SSS_AnnMean, SST_SpringMean, SST_SummerMax)
-projOUT_maf_rcp85 <- predict(zos_GFout, rcp85_uncor)
-
-##get our scores for both RCP 4.5 and 8.5
-genOffsetOUT_maf_rcp45 <- sqrt((projOUT_maf_rcp45[,1]-predOUT_maf[,1])^2+(projOUT_maf_rcp45[,2]-predOUT_maf[,2])^2
-                               +(projOUT_maf_rcp45[,3]-predOUT_maf[,3])^2+(projOUT_maf_rcp45[,4]-predOUT_maf[,4])^2+(projOUT_maf_rcp45[,5]-predOUT_maf[,5])^2)
-
-genoffset_maf_rcp45 <- cbind(sites,genOffsetOUT_maf_rcp45)
-
-genOffsetOUT_maf_rcp85 <- sqrt((projOUT_maf_rcp85[,1]-predOUT_maf[,1])^2+(projOUT_maf_rcp85[,2]-predOUT_maf[,2])^2
-                               +(projOUT_maf_rcp85[,3]-predOUT_maf[,3])^2+(projOUT_maf_rcp85[,4]-predOUT_maf[,4])^2+(projOUT_maf_rcp85[,5]-predOUT_maf[,5])^2)
-
-genoffset_maf_rcp85 <- cbind(sites,genOffsetOUT_maf_rcp85)
-
-genoffset_finalScores <-as.data.frame(cbind(genoffset_maf_rcp45,genoffset_maf_rcp85))
-
-genoffset_finalScores$Region<-c("NS_Islands","NS_Islands","NS_North","Gulf","Gulf","NS_South","NS_North","USA","RIM", "NL","USA","NS_South",
-                                "USA","Gulf","CapeBreton","CapeBreton","JamesBay","JamesBay","NL","Gulf","NS_North")
-
-#bind coordinates to this data file too for fun
-genoffset_finalFINALScores<-cbind(genoffset_finalScores,coords)
-
-write.csv(genoffset_finalFINALScores, "/hdd3/EelgrassPoolSeq/EnvData/ZosteraMarina_GenomicOffsetScores.csv")
-
-#Wilcox tests to look for significance among regions
-wilcox.test(as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[genoffset_finalScores$Region %in% "NS_Islands"]), as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[!(genoffset_finalScores$Region %in% "NS_Islands")]))
-wilcox.test(as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[genoffset_finalScores$Region %in% "NS_North"]), as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[!(genoffset_finalScores$Region %in% "NS_North")]))
-wilcox.test(as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[genoffset_finalScores$Region %in% "JamesBay"]), as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[!(genoffset_finalScores$Region %in% "JamesBay")]))
-wilcox.test(as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[genoffset_finalScores$Region %in% "USA"]), as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[!(genoffset_finalScores$Region %in% "USA")]))
-wilcox.test(as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[genoffset_finalScores$Region %in% "Gulf"]), as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[!(genoffset_finalScores$Region %in% "Gulf")]))
-wilcox.test(as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[genoffset_finalScores$Region %in% "NS_South"]), as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[!(genoffset_finalScores$Region %in% "NS_South")]))
-wilcox.test(as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[genoffset_finalScores$Region %in% "RIM"]), as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[!(genoffset_finalScores$Region %in% "RIM")]))
-wilcox.test(as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[genoffset_finalScores$Region %in% "NL"]), as.numeric(genoffset_finalScores$genOffsetOUT_maf_rcp45[!(genoffset_finalScores$Region %in% "NL")]))
-
 
 
 #Finally, save the data
-save.image("/hdd3/EelgrassPoolSeq/EnvData/RDA_and_GenomicVulnerability.RData")
+save.image("/mnt/sda/EelgrassPoolSeq/EnvData/RDAscript_andoffset_TemperatureOnly.RData")
 
 

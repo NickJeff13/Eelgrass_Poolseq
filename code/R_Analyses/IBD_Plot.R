@@ -31,19 +31,19 @@ load(file = "lcp_dissimilarity.RData")
 
 #Change lcp matrix names to that of the Fst matrix"
 colnames(geo_dist)<-c("SUM","TAYH","MASI","SAC", "PRJ","HEB","L3F","SAM","EBAY","MASS","PORT","POK","POUL",
-                      "NRIV","BUCK","PETI","RIM","SEPT","MELM","GRB","JB33","JB38")
+                      "NRIV","BUCK","PETI","RIM","SEPT","MELM","GRB","JB1","JB2")
 rownames(geo_dist)<-c("SUM","TAYH","MASI","SAC", "PRJ","HEB","L3F","SAM","EBAY","MASS","PORT","POK","POUL",
-                      "NRIV","BUCK","PETI","RIM","SEPT","MELM","GRB","JB33","JB38")
+                      "NRIV","BUCK","PETI","RIM","SEPT","MELM","GRB","JB1","JB2")
 colnames(lcp_dist)<-c("SUM","TAYH","MASI","SAC", "PRJ","HEB","L3F","SAM","EBAY","MASS","PORT","POK","POUL",
-                      "NRIV","BUCK","PETI","RIM","SEPT","MELM","GRB","JB33","JB38")
+                      "NRIV","BUCK","PETI","RIM","SEPT","MELM","GRB","JB1","JB2")
 rownames(lcp_dist)<-c("SUM","TAYH","MASI","SAC", "PRJ","HEB","L3F","SAM","EBAY","MASS","PORT","POK","POUL",
-                      "NRIV","BUCK","PETI","RIM","SEPT","MELM","GRB","JB33","JB38")
+                      "NRIV","BUCK","PETI","RIM","SEPT","MELM","GRB","JB1","JB2")
 #Replace zeroes with NA
 diag(lcp_dist)<-NA
 
 
 poporder<-c("SUM","TAYH","MASI","SAC", "PRJ","HEB","L3F","SAM","EBAY","MASS","PORT","POK","POUL",
-          "NRIV","BUCK","PETI","RIM","SEPT","MELM","GRB","JB33","JB38")
+          "NRIV","BUCK","PETI","RIM","SEPT","MELM","GRB","JB1","JB2")
   
 
 #Reorganize Fst matrix to match order of distance matrices
