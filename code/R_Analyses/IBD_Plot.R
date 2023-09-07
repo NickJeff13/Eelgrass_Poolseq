@@ -110,23 +110,10 @@ p = ggplot(FST_plot, aes(x = DIST, y = FST)) +
                       
      print(p)
 
-                    
-#playing around with colour options
-library(viridis)
-p2 = ggplot(FST_plot, aes(x = DIST, y = FST)) +
- geom_point(aes(color=Method)) + 
-  geom_smooth(aes(color=Method, fill=Method),method = lm, se = TRUE) + 
-  theme_tufte() +
-  theme(panel.border = element_rect(colour = "black", fill = NA)) +
-  scale_color_viridis(discrete = TRUE, option = "D")+
-  scale_fill_viridis(discrete = TRUE)+
-  ylab(bquote("F"["ST"]/(1 -"F"["ST"]))) + xlab("Geographical distance (km)")                  
-
-print(p2)
-
+#try another colour scheme
 library(ggsci)
 
-p3 = ggplot(FST_plot, aes(x = log(DIST), y = FST)) +
+p2 = ggplot(FST_plot, aes(x = +log(DIST), y = FST)) +
   geom_point(aes(color=Method), size=2.5) +
   #coord_cartesian(ylim=c(-0.05,0.35))+
   scale_y_continuous(limits=c(-0.02,0.35))+
@@ -137,5 +124,5 @@ p3 = ggplot(FST_plot, aes(x = log(DIST), y = FST)) +
   scale_fill_d3()+
   ylab(bquote("F"["ST"]/(1 -"F"["ST"]))) + xlab("Log(Geographic distance (km))")                  
 
-print(p3)
-ggsave(filename = "IBD_PlotUpdated.png",plot = p3, device = "png", path = "../Figures/", width = 10, height = 8, units = "in", dpi = 600)
+print(p2)
+ggsave(filename = "IBD_PlotUpdated.png",plot = p2, device = "png", path = "../Figures/", width = 10, height = 8, units = "in", dpi = 600)

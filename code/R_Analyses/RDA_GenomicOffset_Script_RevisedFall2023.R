@@ -138,10 +138,11 @@ text(zos.rda.partial,scaling=3, display="bp", col="#0868ac",cex=1)
 legend("bottomright",legend=sites,bty="n",col="gray32", pch=21, cex=1, pt.bg=bg)
 
 
-
+###############################################################################################################
 ##############################################################################################################
-#################2. PRIMARY ANALYSIS FOR ALL SITES############################################################
+################# 2. PRIMARY ANALYSIS FOR ALL SITES############################################################
 ################# RDA for all sites using modeled climate data###############################################
+#############################################################################################################
 #############################################################################################################
 #going to exclude TSW because it's so genetically different it will make the analysis weird and EBAY because BNAM doesn't model data within Bras D'Or lakes
 
@@ -231,10 +232,10 @@ zos.rda.dists
 summary(zos.rda.dists)
 #4. RDA conditioning on PCA scores
 zos.rda.pca<-vegan::rda(alleles.forGV ~ TBTM_WinterMin + SBTM_AnnMean + SST_SpringMean + SST_SummerMax + Condition(pcascores),data=envonly_present1, scale=T)
-zos.rda.pca
+zos.rda.pca #0.0975 conditional and 0.344 constrained
 summary(zos.rda.pca)
 
-#Look at aliasing and R squared adjusted
+#Look at aliasing and R squared adjusted values
 alias(zos.rda.full,names=T) #no aliasing required
 RsquareAdj(zos.rda.full) #0.19
 global_r2<-RsquareAdj(zos.rda.full)$adj.r.squared
@@ -371,14 +372,14 @@ thres_env<-0.045
 outliers <- data.frame(Loci = colnames(alleles.forGV)[which(rdadapt_env$p.values<thres_env)], 
                        p.value = rdadapt_env$p.values[which(rdadapt_env$p.values<thres_env)], 
                        contig = unlist(lapply(strsplit(colnames(alleles.forGV)[which(rdadapt_env$p.values<thres_env)], split = "_"), function(x) x[1])))
-
-#taking random subsets of 1000 loci 
+#this leads to 738 outliers being detected
+#try with random subsets of 1000 loci 
 
 ## Now do it for structure corrected RDA
 outliers.PCAcorrected <- data.frame(Loci = colnames(alleles.forGV)[which(rdadapt_pca$p.values<thres_env)], 
                        p.value = rdadapt_pca$p.values[which(rdadapt_pca$p.values<thres_env)], 
                        contig = unlist(lapply(strsplit(colnames(alleles.forGV)[which(rdadapt_pca$p.values<thres_env)], split = "_"), function(x) x[1])))
-intersect(outliers$Loci, outliers.PCAcorrected$Loci)#806 outliers overlap when I intersect them
+length(intersect(outliers$Loci, outliers.PCAcorrected$Loci)) #515/738 (70%) outliers overlap when I intersect them
 
 ## Top hit outlier per contig
 #outliers.top <- outliers[order(outliers$contig, outliers$p.value),]
@@ -476,11 +477,11 @@ eelshape <- erase(eelshapeFull, sable)
 #Run just an RDA with the outliers
 RDA_outliers<-vegan::rda(alleles.forGV[,outliers$Loci] ~  SBTM_AnnMean + TBTM_WinterMin + SST_SpringMean + SST_SummerMax, data=envonly_present1, scale=T)
 anova.cca(RDA_outliers) #p<-0.001
-RDA_outliers
+RDA_outliers #0.823 constrained
 summary(RDA_outliers)
 #Look at aliasing and R squared adjusted
 alias(RDA_outliers,names=T) #no aliasing required
-RsquareAdj(RDA_outliers) #0.778
+RsquareAdj(RDA_outliers) #0.779
 
 #extract contributions of RDAs 1:3
 outlier.axis.perc <- round(100*(summary(RDA_outliers)$cont$importance[2, 1:3]), 2)
@@ -659,7 +660,7 @@ ggsave(filename = "NEWGenomicOffset_LegendBottom.png", plot=offsetplot, device =
 
 #offsetplot + geom_point(data=genoffset_finalFINALScores, aes(x=Long, y=Lat, colour=GenOffset85))
 #let's extract scores to compare to our gradient forest below using bumped coords
-bumpedcoords<-read.csv("/hdd3/EelgrassPoolSeq/EnvData/bnam_extracts_bumped_coords.csv",header = T)
+bumpedcoords<-read.csv("/EnvData/bnam_extracts_bumped_coords.csv",header = T)
 rcp85offsetscores<-extract(res_RDA_proj85$Proj_offset_global, bumpedcoords[,3:4], method="bilinear")
 
 #####################################OLD CODE FOR NOW#################################################
