@@ -25,7 +25,7 @@ library(viridisLite)
 setwd("/mnt/sda/EelgrassPoolSeq/")
 
 #load data
-load("EnvData/RDA_and_GenomicVulnerability.RData")
+load("EnvData/RDA_and_GenomicVulnerability_Revised.RData")
 
 #Read in colour scheme for populations
 pop.colors<-read.csv("~/Documents/GitHub/Eelgrass_Poolseq/Data/colour_hex_codes_forRDA.csv")
@@ -321,11 +321,11 @@ rda.biplot<- ggplot(df_species,
 rda.biplot + geom_point(data=df_sites, aes(x=RDA1, y=RDA2, shape=21, fill=Sites, size=2))+
   scale_shape_identity()+
   scale_fill_manual(values=pop.colors$hex)+
-  geom_text_repel(data=df_sites, aes(x=RDA1, y=RDA2, label=Sites, fontface="bold",family="Arial"), max.overlaps = 20) +  #Set bw theme
+  #geom_text_repel(data=df_sites, aes(x=RDA1, y=RDA2, label=Sites, fontface="bold",family="Arial"), max.overlaps = 20) +  #Set bw theme
   theme_bw()+
   theme(legend.position="none")
 
-ggsave(plot = last_plot(), filename = "Zostera_AllPops_FullRDA.png",device = "png",path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/",width = 14, height = 12, units="in")
+ggsave(plot = last_plot(), filename = "Zostera_AllPops_FullRDA_NoLABELS.png",device = "png",path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/",width = 14, height = 12, units="in")
 
   
 #Constrained by geography RDA plot
@@ -542,11 +542,11 @@ outlier.rda.biplot<- ggplot(outlier.df_species,
 outlier.rda.biplot + geom_point(data=outlier.df_sites, aes(x=RDA1, y=RDA2, shape=21, fill=Sites, size=2))+
   scale_shape_identity()+
   scale_fill_manual(values=pop.colors$hex)+
-  geom_text_repel(data=outlier.df_sites, aes(x=RDA1, y=RDA2, label=Sites, fontface="bold",family="Arial"), max.overlaps = 20) +  #Set bw theme
+  #geom_text_repel(data=outlier.df_sites, aes(x=RDA1, y=RDA2, label=Sites, fontface="bold",family="Arial"), max.overlaps = 20) +  #Set bw theme
   theme_bw()+
   theme(legend.position="none")
 
-ggsave(plot = last_plot(), filename = "Zostera_AllPops_OutlierRDA.png",device = "png",path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/",width = 14, height = 12, units="in")
+ggsave(plot = last_plot(), filename = "Zostera_AllPops_OutlierRDA_NoLABELS.png",device = "png",path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/",width = 14, height = 12, units="in")
 
 
 #Now read in our raster stack for the adaptive index plotting
