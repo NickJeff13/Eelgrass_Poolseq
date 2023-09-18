@@ -306,15 +306,15 @@ rda.biplot<- ggplot(df_species,
                color="black", linewidth=1.1,#set color
                arrow=arrow(length=unit(0.01,"npc")))+#Set the size of the lines that form the tip of the arrow
   #Add environmental vars text
-  geom_text(data=df_environ, 
-            aes(x=RDA1*scaling_factor, 
-                y=RDA2*scaling_factor,
-                label=rownames(df_environ),
-                fontface="bold",
-                hjust=0.5*(1-sign(RDA1*scaling_factor)),#Add the text of each environmental var at the end of the arrow
-                vjust=1*(1-sign(RDA2*scaling_factor))),#Add the text of each environmental var at the end of the arrow 
-            color="black")+
-  #Set x and y axis titles
+  # geom_text(data=df_environ, 
+  #           aes(x=RDA1*scaling_factor, 
+  #               y=RDA2*scaling_factor,
+  #               label=rownames(df_environ),
+  #               fontface="bold",
+  #               hjust=0.5*(1-sign(RDA1*scaling_factor)),#Add the text of each environmental var at the end of the arrow
+  #               vjust=1*(1-sign(RDA2*scaling_factor))),#Add the text of each environmental var at the end of the arrow 
+  #           color="black")+
+  # #Set x and y axis titles
   labs(x=paste0("RDA1 (",cca1_varex," %)"),
        y=paste0("RDA2 (",cca2_varex," %)"))
 
@@ -325,7 +325,7 @@ rda.biplot + geom_point(data=df_sites, aes(x=RDA1, y=RDA2, shape=21, fill=Sites,
   theme_bw()+
   theme(legend.position="none")
 
-ggsave(plot = last_plot(), filename = "Zostera_AllPops_FullRDA_NoLABELS.png",device = "png",path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/",width = 14, height = 12, units="in")
+ggsave(plot = last_plot(), filename = "Zostera_AllPops_FullRDA_NoLABELS.png",device = "png",path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/NEW_FOR_REVISION/",width = 14, height = 12, units="in")
 
   
 #Constrained by geography RDA plot
@@ -527,15 +527,15 @@ outlier.rda.biplot<- ggplot(outlier.df_species,
                color="black", size=1.1,#set color
                arrow=arrow(length=unit(0.01,"npc")))+#Set the size of the lines that form the tip of the arrow
   #Add environmental vars text
-  geom_text(data=outlier.df_environ, 
-            aes(x=RDA1*scaling_factor, 
-                y=RDA2*scaling_factor,
-                label=rownames(outlier.df_environ),
-                fontface="bold",
-                hjust=0.2*(1-sign(RDA1*scaling_factor)),#Add the text of each environmental var at the end of the arrow
-                vjust=1*(1-sign(RDA2*scaling_factor))),#Add the text of each environmental var at the end of the arrow 
-            color="black")+
-  #Set x and y axis titles
+  # geom_text(data=outlier.df_environ, 
+  #           aes(x=RDA1*scaling_factor, 
+  #               y=RDA2*scaling_factor,
+  #               label=rownames(outlier.df_environ),
+  #               fontface="bold",
+  #               hjust=0.2*(1-sign(RDA1*scaling_factor)),#Add the text of each environmental var at the end of the arrow
+  #               vjust=1*(1-sign(RDA2*scaling_factor))),#Add the text of each environmental var at the end of the arrow 
+  #           color="black")+
+  # #Set x and y axis titles
   labs(x=paste0("RDA1 (",cca1_varex," %)"),
        y=paste0("RDA2 (",cca2_varex," %)"))
 
@@ -546,7 +546,7 @@ outlier.rda.biplot + geom_point(data=outlier.df_sites, aes(x=RDA1, y=RDA2, shape
   theme_bw()+
   theme(legend.position="none")
 
-ggsave(plot = last_plot(), filename = "Zostera_AllPops_OutlierRDA_NoLABELS.png",device = "png",path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/",width = 14, height = 12, units="in")
+ggsave(plot = last_plot(), filename = "Zostera_AllPops_OutlierRDA_NoLABELS.png",device = "png",path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/NEW_FOR_REVISION/",width = 14, height = 12, units="in")
 
 
 #Now read in our raster stack for the adaptive index plotting
@@ -655,7 +655,7 @@ offsetplot<- ggplot(data = RDA_proj_offset) +
 
 offsetplot+geom_point(data=coords,aes(x=Long,y=Lat),shape=21, fill="white", size=1.75)
 #offsetplot+geom_text_repel(data=envdat, aes(x=Long, y=Lat, label=Site, family="Arial",fontface="bold"), max.overlaps = 20, nudge_x=1.5, nudge_y = -0.5)
-ggsave(filename = "NEWGenomicOffset_LegendBottom.png", plot=offsetplot, device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/", 
+ggsave(filename = "NEWGenomicOffset_LegendBottom.png", plot=last_plot(), device = "png", path = "~/Documents/GitHub/Eelgrass_Poolseq/Figures/", 
        width = 12, height = 10, units = "in")
 
 #offsetplot + geom_point(data=genoffset_finalFINALScores, aes(x=Long, y=Lat, colour=GenOffset85))
