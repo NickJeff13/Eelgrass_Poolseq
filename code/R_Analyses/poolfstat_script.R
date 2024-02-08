@@ -37,7 +37,7 @@ zospools.minrc4<-popsync2pooldata(sync.file = "ZosteraAllPools.sync",
                            noindel = TRUE, 
                            nlines.per.readblock = 1e+06,
                            nthreads = 60)
-zospools@poolnames<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","MASS","RIM",
+zospools@poolnames<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
 "SEPT","GRB","HEB","PORT", "PETI","NRIV","EBAY","POUL","JB33","JB38","BUCK","MELM","TAYH","TSW")
 
 #Make a subset of sites with no TSW for IBD testing - TSW is too different from everything else!
@@ -48,8 +48,11 @@ zospools.noTSW <- pooldata.subset(pooldata = zospools,
                                   min.maf = 0.05,
                                   verbose = T)
 
-zospools.noTSW@poolnames <- c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","MASS","RIM",
-                              "SEPT","GRB","HEB","PORT", "PETI","NRIV","EBAY","POUL","JB33","JB38","BUCK","MELM","TAYH")
+zospools.noTSW@poolnames <- c("MASI","SAC","L3F","SUM","POK",
+                              "PRJ","SAM","NAH","RIM",
+                              "SEPT","GRB","HEB","PORT", 
+                              "PETI","NRIV","EBAY","POUL",
+                              "JB33","JB38","BUCK","MELM","TAYH")
 
 #Now a subset of sites with no TSW and no EBAY (Cape Breton) as we don't have future data for them under the BNAM model
 #Name this 'forGV' to mean for genomic vulnerability analyses
@@ -60,7 +63,7 @@ zospools.forGV <- pooldata.subset(pooldata = zospools,
                                   min.maf = 0.05,
                                   verbose = T)
 
-zospools.forGV@poolnames <- c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","MASS","RIM",
+zospools.forGV@poolnames <- c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
                               "SEPT","GRB","HEB","PORT", "PETI","NRIV","POUL","JB33","JB38","BUCK","MELM","TAYH")
 
 
@@ -72,6 +75,16 @@ zospools.NS <- pooldata.subset(pooldata = zospools,
                                   min.maf = 0.05,
                                   verbose = T)
 
+#ADDED NOVEMBER 6 2023 - Pooled data for Nova Scotia including Cape Breton
+zospools.allNS<-pooldata.subset(pooldata = zospools.noTSW,
+                                pool.index = c(1:3,6:7,12,15:17,22),
+                                min.cov.per.pool = 20,
+                                max.cov.per.pool = 500,
+                                min.maf = 0.05,
+                                verbose = T)
+
+zospools.allNS@poolnames <- c("MASI","SAC","L3F", "PRJ","SAM",
+                              "HEB", "NRIV","EBAY","POUL","TAYH")
 
 ##################################################
 ####Next, compute pairwise Fst for all pool objects
@@ -132,6 +145,14 @@ qqman::manhattan(globalfsts, chr="CHR", bp="BP", snp="SNP", p="FST", suggestivel
 #now do some jackknifing to calculate standard error
 zos.snp.fsts.jacked<-computeFST(zospools,method = "Anova",nsnp.per.bjack.block = 1000)
 
+
+#Run Fst per snp on the all Nova Scotia subset
+zos.NS.snp.fsts <- computeFST(x = zospools.allNS, method ="Anova", sliding.window.size = 100)
+plot(zos.NS.snp.fsts$sliding.windows.fst$CumulatedPosition/1e4,zos.NS.snp.fsts$sliding.windows.fst$MultiLocusFst,
+     xlab="Cumulative Position (Mb)",ylab="Multi-locus Fst")
+#filter by high Fst
+zos.NS.HighFST <- zos.NS.snp.fsts$sliding.windows.fst %>% filter(MultiLocusFst>0.15)
+zos.NS.HighFST$SNP <- paste0(zos.NS.HighFST$Chr, "_",zos.NS.HighFST$Position)
 #################Now compute fstats using the compute.fstats functions
 
 zos.fstats<-compute.fstats(x = zospools,nsnp.per.bjack.block = 1000,computeDstat = T,verbose = T)
