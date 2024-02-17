@@ -21,6 +21,15 @@ al.freq3<-al.freq2[,-c(9,18:19)]
 #now do just NS pops
 al.freq4<-zospools.NS@refallele.readcount/zospools.NS@readcoverage
 
+#All of Nova Scotia including East Bay and the Cape Breton pops
+al.freq5<- zospools.allNS@refallele.readcount/zospools.allNS@readcoverage
+rownames(al.freq5)<-paste0(zospools.allNS@snp.info$Chromosome, "_", zospools.allNS@snp.info$Position)
+dim(al.freq5)
+nsoutlier<-as.vector(intersect(rownames(al.freq5),outliers$Loci))
+al.freq5<-al.freq5[nsoutlier,]
+dim(al.freq5)
+
+
 #change input here depending on what we'll use
 zos.pcadapt.full <- read.pcadapt(input=t(al.freq), type="pool")
 
@@ -29,6 +38,8 @@ zos.pcadapt.NS<-read.pcadapt(input = t(al.freq4),type = 'pool')
 zos.pcadapt.NoTSW<-read.pcadapt(input = t(al.freq2),type = 'pool') #and no Ebay
 
 zos.pcadapt.ATLonly<-read.pcadapt(input = t(al.freq3),type = 'pool')
+
+zos.pcadapt.allNS <-read.pcadapt(input= t(al.freq5), type='pool')
 
 #Poplists for each subset of data
 poplist.full<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH","RIM",
@@ -42,6 +53,8 @@ poplist.subset.AtlanticOnly<-c("MASI","SAC","L3F","SUM","POK","PRJ","SAM","NAH",
 
 NS.poplist<-c("MASI", "SAC" , "L3F" , "PRJ" , "SAM" , "HEB" , "EBAY" ,"TAYH")
 
+allNS.pops <-  c("MASI","SAC","L3F", "PRJ","SAM","HEB", "NRIV","EBAY","POUL","TAYH")
+
 #Now run the pcadapt function
 x <- pcadapt(zos.pcadapt.full, K=22)
 pc.percent<-round(100*(x$singular.values^2),digits = 2)
@@ -51,6 +64,9 @@ pc.percent.y<-round(100*(y$singular.values^2),digits = 2)
 
 z <- pcadapt(zos.pcadapt.NS, K=6)
 pc.percent.z<-round(100*(z$singular.values^2),digits = 2)
+
+q <- pcadapt(zos.pcadapt.allNS, K=9)
+pc.percent.q<-round(100*(q$singular.values^2),digits = 2)
 
 #add latitude to the dataframe for plotting 
 #all sites
@@ -71,6 +87,7 @@ score_plot(y, pop = poplist.noTSW)
 score_plot2(y, pop = NS.poplist,i=1,j=3)
 score_plot2(y, pop = NS.poplist,i=2,j=3)
 score_plot2(y,  pop = poplist.subset, plt.pkg = "ggplot", i=2, j=3)
+score_plot(q, pop = allNS.pops, plt.pkg='plotly')
 
 #Now redo pcadapt with K=3
 x2<-pcadapt(zos.pcadapt.full, K=3)
