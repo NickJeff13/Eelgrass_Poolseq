@@ -1,36 +1,36 @@
-location,province,code,year,region,ocean,lat,long,number,collaborator,Sequenced,Depth
-Summerside,PEI,SUM,2021,Gulf-PEI,atlantic,46.36505,-63.79396667,50,,2021,
-Taylor Head,NS,TH,2021,Maritimes,atlantic,44.82054295,-62.57190789,50,,2021,
-Masons Island,NS,MASI,2021,Maritimes,atlantic,44.38989996,-64.27879991,50,,2021,
-Sacrifice Island,NS,SAC,2021,Maritimes,atlantic,44.396652,-64.23597702,50,,2021,
-Port Joli,NS,PRJ,2021,Maritimes,atlantic,43.87538304,-64.90091692,50,,2021,
-Port L'Hebert,NS,HEB,2021,Maritimes,atlantic,43.86806698,-64.96333293,50,,2021,
-Lower Three Fathom,NS,L3F,2021,Maritimes,atlantic,44.63533793,-63.29393794,50,,2021,
-Sambro,NS,SAM,2021,Maritimes,atlantic,44.4554,-63.5879,50,,2021,
-East Bay,NS,Ebay,2021,Maritimes,atlantic,46.01493,-60.38755,50,,2021,
-Nahant,Massachussetts,NAH,2021,USA,atlantic,42.42,-70.92,50,Phil Colarusso,2021,
-Portland,Maine,PORT,2021,USA,atlantic,43.66833,-70.23891,50,Phil Colarusso,2021,
-Pokesudie,NB,POK,2021,Gulf-NB,atlantic,47.78465,-64.74825,50,,2021,
-Poulamon,NS,POUL,2021,Maritimes,atlantic,45.58269,-61.00286,50,,2021,
-North River,NS,NRIV,2021,Maritimes,atlantic,46.2969,-60.6145,50,,2021,
-Buckley Cove,NL,BUCK,2021,Newfoundland,atlantic,48.59036667,-53.91451667,55,Bob Gregory,2021,
-Petite Baie,QB,PETITE,2021,Quebec,atlantic,47.40533,-61.8226,49,Nathalie Simard,2021,
-Rimouski,QB,RIM,2021,Quebec,atlantic,48.46687871,-68.51951606,41,France Dufresne,2021,
-Sept Iles,QB,SEPT,2021,Quebec,atlantic,50.24063719,-66.51546842,39,France Dufresne,2021,
-James Bay CH33,JB,CH33,2021,Arctic,subarctic,53.6968,-79.1279,30,France Dufresne,2021,
-James Bay CH38,JB,CH38,2021,Artcic,subarctic,53.280838,-78.974159,30,France Dufresne,2021,
-Melmerby,NB,MELM,2021,Gulf-NS,atlantic,45.65388991,-62.50152598,54,,2021,
-Great Bay,New Hampshire,GRB,2021,USA,atlantic,43.073,-70.864,50,Cynthia Hays,2021,
-Tsawwassen Beach,BC,TSW,2021,Pacific,pacific,49.00515575,-123.0934823,30,France Dufresne,2021,
-Little Bay,NL,LIB,2021,Newfoundland,atlantic,,,,Phil Sargent,2023,
-Goldboro,NS,GLD,2023,Maritimes,atlantic,45.16625,-61.64516,,"Nick, Harri, Benedikte",2023,Subtidal
-Cable Island,NS,CAB,2023,Maritimes,atlantic,44.745232,-62.80139,,Shawn Roach,2023,Subtidal
-Chebogue,NS,CHE,2023,Maritimes,atlantic,43.7419,-66.0832,,"Nick, Mallory, Benedikte",2023,Subtidal
-Whycocomagh,NS,WHY,2023,Bras D'Or,atlantic,45.972514,-61.120865,,Shawn Roach,2023,Subtidal
-St. Mary's,NS,STM,2023,Maritimes,atlantic,,,,CPAWS,2023,
-Owls Head,NS,OWL,2023,Maritimes,atlantic,44.7085,-62.841,,Kristina Boerder,2023,
-Conrod's Beach,NS,CON,2023,Maritimes,atlantic,44.7016,-63.178,,Nick,2023,Subtidal
-Parrsboro,NS,PAR,2023,Maritimes,atlantic,45.3901,-64.3156,48,Nick,2023,intertidal
-Aspy Bay,NS,ASP,2023,Maritimes,atlantic,,,50,CPAWS,2023,Subtidal
-Fish Peddler,NS,FIP,2023,Maritimes,atlantic,44.322,-64.3368,48,"Nick, Vicki, Benedikte",2023,Subtidal
-Cherry Hill,NS,CHL,2023,Maritimes,atlantic,44.145961,-64.5076,44,"Nick, Vicki, Benedikte",2023,"Poorly flushed lagoon, shallow subtidal"
+location,province,code,year,region,ocean,lat,long,number,collaborator,Depth,Sequenced
+Summerside,PEI,SUM,2021,Gulf-PEI,atlantic,46.36505,-63.79396667,50,,,Y
+Taylor Head,NS,TH,2021,Maritimes,atlantic,44.82054295,-62.57190789,50,,,Y
+Masons Island,NS,MASI,2021,Maritimes,atlantic,44.38989996,-64.27879991,50,,,Y
+Sacrifice Island,NS,SAC,2021,Maritimes,atlantic,44.396652,-64.23597702,50,,,Y
+Port Joli,NS,PRJ,2021,Maritimes,atlantic,43.87538304,-64.90091692,50,,,Y
+Port L'Hebert,NS,HEB,2021,Maritimes,atlantic,43.86806698,-64.96333293,50,,,Y
+Lower Three Fathom,NS,L3F,2021,Maritimes,atlantic,44.63533793,-63.29393794,50,,,Y
+Sambro,NS,SAM,2021,Maritimes,atlantic,44.4554,-63.5879,50,,,Y
+East Bay,NS,Ebay,2021,Maritimes,atlantic,46.01493,-60.38755,50,,,Y
+Nahant,Massachussetts,NAH,2021,USA,atlantic,42.42,-70.92,50,Phil Colarusso,,Y
+Portland,Maine,PORT,2021,USA,atlantic,43.66833,-70.23891,50,Phil Colarusso,,Y
+Pokesudie,NB,POK,2021,Gulf-NB,atlantic,47.78465,-64.74825,50,,,Y
+Poulamon,NS,POUL,2021,Maritimes,atlantic,45.58269,-61.00286,50,,,Y
+North River,NS,NRIV,2021,Maritimes,atlantic,46.2969,-60.6145,50,,,Y
+Buckley Cove,NL,BUCK,2021,Newfoundland,atlantic,48.59036667,-53.91451667,55,Bob Gregory,,Y
+Petite Baie,QB,PETITE,2021,Quebec,atlantic,47.40533,-61.8226,49,Nathalie Simard,,Y
+Rimouski,QB,RIM,2021,Quebec,atlantic,48.46687871,-68.51951606,41,France Dufresne,,Y
+Sept Iles,QB,SEPT,2021,Quebec,atlantic,50.24063719,-66.51546842,39,France Dufresne,,Y
+James Bay CH33,JB,CH33,2021,Arctic,subarctic,53.6968,-79.1279,30,France Dufresne,,Y
+James Bay CH38,JB,CH38,2021,Artcic,subarctic,53.280838,-78.974159,30,France Dufresne,,Y
+Melmerby,NB,MELM,2021,Gulf-NS,atlantic,45.65388991,-62.50152598,54,,,Y
+Great Bay,New Hampshire,GRB,2021,USA,atlantic,43.073,-70.864,50,Cynthia Hays,,Y
+Tsawwassen Beach,BC,TSW,2021,Pacific,pacific,49.00515575,-123.0934823,30,"France Dufresne, Mary O'Connor",,Y
+Little Bay,NL,LIB,2021,Newfoundland,atlantic,49.6094,-55.9349,50,Phil Sargent,,N
+Goldboro,NS,GLD,2023,Maritimes,atlantic,45.16625,-61.64516,50,"Nick, Harri, Benedikte",Subtidal,N
+Cable Island,NS,CAB,2023,Maritimes,atlantic,44.745232,-62.80139,50,Shawn Roach,Subtidal,N
+Chebogue,NS,CHE,2023,Maritimes,atlantic,43.7419,-66.0832,50,"Nick, Mallory, Benedikte",Subtidal,N
+Whycocomagh,NS,WHY,2023,Bras D'Or,atlantic,45.972514,-61.120865,50,Shawn Roach,Subtidal,N
+St. Mary's,NS,STM,2023,Maritimes,atlantic,45.051,-61.9,50,CPAWS,,N
+Owls Head,NS,OWL,2023,Maritimes,atlantic,44.7085,-62.841,46,Kristina Boerder,,N
+Conrod's Beach,NS,CON,2023,Maritimes,atlantic,44.7016,-63.178,50,Nick,Subtidal,N
+Parrsboro,NS,PAR,2023,Maritimes,atlantic,45.3901,-64.3156,48,Nick,intertidal,N
+Aspy Bay,NS,ASP,2023,Maritimes,atlantic,46.90015,-60.49537,50,CPAWS,Subtidal,N
+Fish Peddler,NS,FIP,2023,Maritimes,atlantic,44.322,-64.3368,48,"Nick, Vicki, Benedikte",Subtidal,N
+Cherry Hill,NS,CHL,2023,Maritimes,atlantic,44.145961,-64.5076,44,"Nick, Vicki, Benedikte","Poorly flushed lagoon, shallow subtidal",N

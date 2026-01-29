@@ -29,7 +29,7 @@ colour_df <- data.frame(code=c("NAH","GRB","PORT","HEB","PRJ","SAC","MASI","SAM"
                                "#FDBF6F","gray70", "khaki2", "maroon", "orchid1", "deeppink1", "blue1", "steelblue4",
                                 "darkturquoise", "green1", "yellow4", "yellow3","darkorange4", "brown" )) #from https://stackoverflow.com/questions/9563711/r-color-palettes-for-many-data-classes
 #load the coordinates
-eelgrass_coords <- read.csv("Data/allsites_coords.csv")%>%
+eelgrass_coords <- read.csv("data/allsites_coords.csv")%>%
   st_as_sf(coords=c("long","lat"),crs=latlong,remove=FALSE)%>%
   st_transform(CanProj)%>%
   mutate(code=case_when(code=="TH"~"TAYH", #fix these to match the plot
@@ -42,12 +42,14 @@ eelgrass_coords <- read.csv("Data/allsites_coords.csv")%>%
 
 
 #save the colour dataframe for other plots
-write.csv(colour_df,"Data/Colour_codes.csv",row.names=FALSE)  
+#write.csv(colour_df,"data/Colour_codes.csv",row.names=FALSE)  
 
 #Shapefiles
-can_eez <- read_sf("r:/Science/CESD/HES_MPAGroup/Data/Shapefiles/Canada_EEZ.shp")%>%st_transform(CanProj)
+can_eez <- read_sf("r:/Science/CESD/HES_MPAGroup/Data/Shapefiles/Canada_EEZ.shp")%>%
+  st_transform(CanProj)
 
-ns_coast <- read_sf("r:/Science/CESD/HES_MPAGroup/Data/Shapefiles/Coastline/NS_coastline_project_Erase1.shp")%>%st_transform(CanProj)
+ns_coast <- read_sf("r:/Science/CESD/HES_MPAGroup/Data/Shapefiles/Coastline/NS_coastline_project_Erase1.shp")%>%
+  st_transform(CanProj)
 
 #create a map boundary for the analysis based on the Canadian EEZ
 can_bounding <- can_eez%>%
@@ -118,7 +120,7 @@ Canada <-  ne_states(country = "Canada",returnclass = "sf")%>%
   mutate(country="Canada")
 
 Atlantic_bound <- eelgrass_coords%>%
-                  filter(grouping=="atlantic",code!="BUCK")%>%
+                  filter(ocean != "pacific")%>%
                   st_bbox()%>%
                   st_as_sfc()%>%
                   st_as_sf()%>%
@@ -133,13 +135,36 @@ Atlantic_bound
 atlantic <- ggplot()+
   geom_sf(data=basemap,lwd=0,col=NA,fill="grey60")+
   geom_sf(data=Canada,lwd=0,col=NA,fill="grey50")+
-  geom_sf(data=eelgrass_coords,aes(fill=col),shape=21,size=4)+
+  geom_sf(data=eelgrass_coords,aes(fill=Sequenced),shape=21,size=4)+
+  scale_fill_manual(values = c("red","blue"))+
   coord_sf(expand=0,xlim=Atlantic_bound%>%st_bbox()%>%.[c(1,3)],ylim=Atlantic_bound%>%st_bbox()%>%.[c(2,4)])+
   theme_bw()+
   annotation_scale(location="br")+
   annotation_north_arrow(location="tl",height=unit(0.75, "cm"),width=unit(0.75, "cm"))+
-  scale_fill_identity()+
-  theme(legend.position = "none")
+  theme(legend.position = "bottom");atlantic
+
+ns.sites <- ggplot()+
+  geom_sf(data=ns_coast,lwd=0,col=NA,fill="grey60")+
+  geom_sf(data=eelgrass_coords %>% 
+            filter(region=="Maritimes"),aes(fill=Sequenced),shape=21,size=4)+
+  scale_fill_manual(values = c("red","blue"))+
+  theme_bw()+
+  annotation_scale(location="br")+
+  #annotation_north_arrow(location="tl",height=unit(0.75, "cm"),width=unit(0.75, "cm"))+
+  theme(legend.position = "none");ns.sites
+
+#Map for 2026 genomics work with UNCW
+library(patchwork)
+
+atlantic + ns.sites
+
+ggsave(filename = "DFO_eelgrassSites.png",
+       plot=last_plot(),
+       path = "figures/",
+       device = "png", 
+       width = 12, 
+       height = 8,
+       dpi = 400)
 
 #Inset map
 inset <- ggplot()+
@@ -150,7 +175,7 @@ inset <- ggplot()+
   coord_sf(expand=0,xlim=point_bound%>%st_bbox()%>%.[c(1,3)],ylim=point_bound%>%st_bbox()%>%.[c(2,4)])+
   theme_bw()+
   scale_fill_identity()+
-  theme(legend.position = "none")
+  theme(legend.position = "none");inset
 
 ggsave("Figures/atlantic_point_map.png",atlantic,height=8,width=6,units="in",dpi=300)
 ggsave("Figures/eelgrass_point_map_inset.png",inset,height=8,width=8,units="in",dpi=300)
