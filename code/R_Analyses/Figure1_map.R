@@ -40,6 +40,18 @@ eelgrass_coords <- read.csv("data/allsites_coords.csv")%>%
                         TRUE ~ code))%>%
   left_join(.,colour_df)
 
+eelgrass_coords$toSequence <- rep("No",length(eelgrass_coords$location))
+
+eelgrass_coords$toSequence[eelgrass_coords$code=="TAYH"] <- "Yes"
+eelgrass_coords$toSequence[eelgrass_coords$code=="SAC"] <- "Yes"
+eelgrass_coords$toSequence[eelgrass_coords$code=="HEB"] <- "Yes"
+eelgrass_coords$toSequence[eelgrass_coords$code=="SAM"] <- "Yes"
+eelgrass_coords$toSequence[eelgrass_coords$code=="LIB"] <- "Yes"
+eelgrass_coords$toSequence[eelgrass_coords$code=="CHE"] <- "Yes"
+eelgrass_coords$toSequence[eelgrass_coords$code=="WHY"] <- "Yes"
+eelgrass_coords$toSequence[eelgrass_coords$code=="FIP"] <- "Yes"
+eelgrass_coords$toSequence[eelgrass_coords$code=="PAR"] <- "Yes"
+eelgrass_coords$toSequence[eelgrass_coords$code=="ASP"] <- "Yes"
 
 #save the colour dataframe for other plots
 #write.csv(colour_df,"data/Colour_codes.csv",row.names=FALSE)  
@@ -135,18 +147,38 @@ Atlantic_bound
 atlantic <- ggplot()+
   geom_sf(data=basemap,lwd=0,col=NA,fill="grey60")+
   geom_sf(data=Canada,lwd=0,col=NA,fill="grey50")+
-  geom_sf(data=eelgrass_coords,aes(fill=Sequenced),shape=21,size=4)+
+  geom_sf(data=eelgrass_coords,aes(fill=Sequenced, shape=toSequence),
+          colour="black",
+          size=4)+
+  scale_shape_manual(values = c(21, 24)) +
   scale_fill_manual(values = c("red","blue"))+
-  coord_sf(expand=0,xlim=Atlantic_bound%>%st_bbox()%>%.[c(1,3)],ylim=Atlantic_bound%>%st_bbox()%>%.[c(2,4)])+
+  coord_sf(expand=0,xlim=Atlantic_bound%>%st_bbox()%>%.[c(1,3)],
+           ylim=Atlantic_bound%>%st_bbox()%>%.[c(2,4)])+
   theme_bw()+
   annotation_scale(location="br")+
   annotation_north_arrow(location="tl",height=unit(0.75, "cm"),width=unit(0.75, "cm"))+
+  guides(
+    fill = guide_legend(
+      order = 1,
+      override.aes = list(shape = 21,
+                          fill = c("red", "blue"),
+                          colour = "black")
+    ),
+    shape = guide_legend(
+      order = 2,
+      override.aes = list(fill = "grey80",
+                          colour = "black")
+    )
+  ) +
   theme(legend.position = "bottom");atlantic
 
 ns.sites <- ggplot()+
   geom_sf(data=ns_coast,lwd=0,col=NA,fill="grey60")+
   geom_sf(data=eelgrass_coords %>% 
-            filter(region=="Maritimes"),aes(fill=Sequenced),shape=21,size=4)+
+            filter(region=="Maritimes"),aes(fill=Sequenced, shape=toSequence),
+          colour="black",
+          size=4)+
+  scale_shape_manual(values = c(21, 24)) +
   scale_fill_manual(values = c("red","blue"))+
   theme_bw()+
   annotation_scale(location="br")+
